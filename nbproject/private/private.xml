@@ -3,8 +3,28 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/luiz/Dados/Trabalho/Pesquisa/Doutorado/Tese/projetos/GSGP-GD/src/edu/gsgp/experiment/config/PropertiesManager.java</file>
-            <file>file:/home/luiz/Dados/Trabalho/Pesquisa/Doutorado/Tese/projetos/GSGP-GD/src/edu/gsgp/experiment/data/HoldoutHandler.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/population/fitness/FitnessRMSE.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/utils/Utils.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/config/PropertiesManager.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/population/treebuilder/TreeBuilder.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/population/fitness/Fitness.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/config/Experimenter.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/population/Individual.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/population/operator/GSMBreeder.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/nbproject/build-impl.xml</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/data/Dataset.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/config/RandomFunctionExperimenter.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/nodes/Node.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/utils/Statistics.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/Main.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/data/HoldoutHandler.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/data/ExperimentalData.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/data/DataReader.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/data/DataProducer.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/population/treebuilder/FullBuilder.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/experiment/data/CrossvalidationHandler.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/population/populator/SDIPopulator.java</file>
+            <file>file:/Users/casadei/dev/casadei/gsgp-gd/src/edu/gsgp/nodes/functions/Function.java</file>
         </group>
     </open-files>
 </project-private>

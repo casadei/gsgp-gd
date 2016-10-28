@@ -7,6 +7,7 @@
 package edu.gsgp;
 
 import edu.gsgp.experiment.config.Experimenter;
+import edu.gsgp.experiment.config.RandomFunctionExperimenter;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
@@ -19,10 +20,11 @@ public class Main {
         try{
             long startTime = System.currentTimeMillis();
             
-            Experimenter experiment = new Experimenter(args);
+            //Experimenter experiment = new Experimenter(args);
+            RandomFunctionExperimenter experiment = new RandomFunctionExperimenter(args);
             experiment.runExperiment();
             
-            System.out.println("Elapsed Time: " + ((System.currentTimeMillis() - startTime)/1000) + " seconds");
+            //System.out.println("Elapsed Time: " + ((System.currentTimeMillis() - startTime)/1000) + " seconds");
         }
         catch(Exception e){
             e.printStackTrace();

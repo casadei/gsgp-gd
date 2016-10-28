@@ -63,8 +63,6 @@ public class PropertiesManager {
     
     protected Properties fileParameters;
     protected CommandLine cliParameters;
-
-    protected Options cliOptions;
     
     private DataProducer dataProducer;
     private MersenneTwister mersennePRNG;
@@ -102,13 +100,17 @@ public class PropertiesManager {
     // Used do double check the parameters loaded/used by the experiment
     private StringBuilder loadedParametersLog;
 
-    public PropertiesManager(String args[]) throws Exception{
+    public PropertiesManager(String args[]) throws Exception {
+        this(new DefaultParser().parse(getBaseOptions(), args));
+    }
+    
+    public PropertiesManager(CommandLine parameters) throws Exception {
         loadedParametersLog = new StringBuilder();
+     
+        parameterLoaded = loadParameterFile(parameters);
         
-        setOptions();
-        parameterLoaded = loadParameterFile(args);
         if(parameterLoaded)
-            loadParameters();        
+            loadParameters();                
     }
     
     private void loadParameters() throws Exception{
@@ -215,21 +217,19 @@ public class PropertiesManager {
 
     /**
      * Load the parameters from the CLI and file
-     * @param args CLI parameters
+     * @param parameters CommandLine parameters
      * @return True if and only if parameters are loaded both from CLI and file
      * @throws Exception 
      */
-    private boolean loadParameterFile(String[] args) throws Exception{
+    private boolean loadParameterFile(CommandLine parameters) throws Exception{
         try {
-            CommandLineParser parser = new DefaultParser();
-            CommandLine parametersCLI = parser.parse(cliOptions, args);
-            if(parametersCLI.hasOption("H")){
+            if(parameters.hasOption("H")){
                 writeParameterModel();
                 return false;
             }
-            if(!parametersCLI.hasOption("p"))
+            if(!parameters.hasOption("p"))
                 throw new Exception("The parameter file was not specified.");
-            String path = parametersCLI.getOptionValue("p");
+            String path = parameters.getOptionValue("p");
             fileParameters = loadProperties(path);
             return true;
         } 
@@ -459,7 +459,7 @@ public class PropertiesManager {
             throw new NullPointerException(e.getMessage() + "\nThe parameter file was not initialized.");
         }
     }
-
+    
     private TreeBuilder getIndividualBuilder(boolean isForRandomTrees) throws Exception{
         String builderType;
         if(isForRandomTrees)
@@ -649,26 +649,28 @@ public class PropertiesManager {
      * - One or more parameters to overwrite parameters from the file 
      * - The option of creating a parameter file model on the classpath
      */
-    private void setOptions() {
-        cliOptions = new Options();
-        cliOptions.addOption(Option.builder("p")
+    public static Options getBaseOptions() {
+        Options options = new Options();
+        options.addOption(Option.builder("p")
                 .required(false)
                 .hasArg()
                 .desc("Paramaters file")
                 .type(String.class)
                 .build());
-        cliOptions.addOption(Option.builder("P")
+        options.addOption(Option.builder("P")
                 .required(false)
                 .hasArg()
                 .desc("Overwrite of one or more parameters provided by file.")
                 .type(String.class)
                 .hasArgs()
                 .build());
-        cliOptions.addOption(Option.builder("H")
+        options.addOption(Option.builder("H")
                 .required(false)
                 .desc("Create a parameter file model on the classpath.")
                 .type(String.class)
                 .build());
+        
+        return options;
     }
 
     //********************************** Public getters **********************************

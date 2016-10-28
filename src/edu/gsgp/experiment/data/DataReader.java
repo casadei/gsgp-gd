@@ -41,7 +41,6 @@ public class DataReader {
                         data.add(in, out);
                     }
                 }
-                
             }
         } 
         catch (NumberFormatException e){
