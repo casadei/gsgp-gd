@@ -3,3 +3,5 @@
 out/*
 nbproject/*
 .DS_Store
+*.log
+/build

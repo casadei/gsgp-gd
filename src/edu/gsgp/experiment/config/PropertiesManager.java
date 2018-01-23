@@ -32,6 +32,8 @@ import edu.gsgp.nodes.Node;
 import edu.gsgp.nodes.functions.Function;
 import edu.gsgp.nodes.terminals.Input;
 import edu.gsgp.nodes.terminals.Terminal;
+import edu.gsgp.normalization.NormalizationStrategy;
+import edu.gsgp.normalization.strategies.*;
 import edu.gsgp.population.treebuilder.FullBuilder;
 import edu.gsgp.population.treebuilder.GrowBuilder;
 import edu.gsgp.population.treebuilder.HalfBuilder;
@@ -45,6 +47,8 @@ import edu.gsgp.population.selector.IndividualSelector;
 import edu.gsgp.population.selector.TournamentSelector;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
@@ -100,6 +104,9 @@ public class PropertiesManager {
     
     private String outputDir;
     private String filePrefix;
+    private String normalizationStrategyName;
+    private Double normalizationStrategyArg;
+           
     
     // Used do double check the parameters loaded/used by the experiment
     private StringBuilder loadedParametersLog;
@@ -150,10 +157,11 @@ public class PropertiesManager {
         pipeline = getPipelineObject();
         populationInitializer = getPopInitObject();
         breederList = getBreederObjects();
+        normalizationStrategyName = getNormalizationStrategyName();
+        normalizationStrategyArg = getNormalizationStrategyArg();
         
         individualSelector = getIndividualSelector();
         forestBuilder = createForestBuilder();
-
         nanosecondsTimeLimit = getLongProperty(ParameterList.TIME_LIMIT, -1) * 1000000000;
     }
 
@@ -212,7 +220,8 @@ public class PropertiesManager {
 //        XOVER_PROB("breed.xover.prob", "Probability of applying the crossover operator", false),
 //        SEMANTIC_SIMILARITY_THRESHOLD("sem.gp.epsilon", "Threshold used to determine if two semantics are similar", false);
         FOREST_BUILDER("forest.builder", "The builder used to generate a set of trees (forest) used by the genetic operators.", false),
-        TIME_LIMIT("experiment.timelimit", "The maximum allowed duration time (in seconds) of an experiment.", false);
+        TIME_LIMIT("experiment.timelimit", "The maximum allowed duration time (in seconds) of an experiment.", false),
+        NORM_STRATEGY("normalization.strategy", "Normalization strategy.", true);
 
         public final String name;
         public final String description;
@@ -658,12 +667,8 @@ public class PropertiesManager {
                 return new OnDemandUniqueForestBuilder(this);
             case "PROBABILITY_DISTRIBUTED":
                 return new ProbabilityDistributedForestBuilder(this);
-            case "SDI":
-                return new SDIForestBuilder(this);
             case "SMART":
                 return new SmartForestBuilder(this);
-            case "STATIC":
-                return new StaticForestBuilder(this);
             default:
                 throw new ClassNotFoundException("Error loading the forest builder. Class " + forestBuilderClassName + " not found.");
         }
@@ -877,6 +882,48 @@ public class PropertiesManager {
         return copyBreeders;
     }
     
+    private String getNormalizationStrategyName() throws Exception {
+        String strategy = "";
+        try {
+            strategy = getStringProperty(ParameterList.NORM_STRATEGY, false);
+            return strategy;
+        } catch (Exception e) {
+            String msg = "Error loading the normalization strategy. ";
+            if(strategy.isEmpty())
+                msg += "No normalization strategy was specified.";
+            else
+                msg += "It was not possible to parse the normalization strategy \"" + strategy + "\".";
+            throw new Exception(msg, e);
+        }
+    }
+    
+    private double getNormalizationStrategyArg() {
+        Pattern p = Pattern.compile("percentileminmax-(\\d+)");
+        Matcher m = p.matcher(normalizationStrategyName);
+        
+        if (m.find()) {
+            return Integer.parseInt(m.group(1));
+        }
+        
+        return 0.0;
+    }
+    
+    public NormalizationStrategy getNormalizationStrategy() {        
+        if (normalizationStrategyName.toLowerCase().equals("minmax")) {
+            return new MinMaxStrategy();
+        } else if (normalizationStrategyName.toLowerCase().startsWith("percentileminmax")) {
+            return new PercentileMinMaxStrategy(normalizationStrategyArg);
+        } else if (normalizationStrategyName.toLowerCase().equals("zscoresigmoid")) {
+            return new SigmoidStrategy(new ZScoreStrategy());
+        } else if (normalizationStrategyName.toLowerCase().equals("zscoreminmax")) {
+            return new MinMaxStrategy(new ZScoreStrategy());
+        } else if (normalizationStrategyName.toLowerCase().startsWith("zscorepercentileminmax")) {
+            return new PercentileMinMaxStrategy(normalizationStrategyArg, new ZScoreStrategy());
+        }
+
+        return new SigmoidStrategy();
+    }
+        
     public String getLoadedParametersString(){
         return loadedParametersLog.toString();
     }

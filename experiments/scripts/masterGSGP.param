@@ -9,7 +9,7 @@ tree.build.functions = edu.gsgp.nodes.functions.AQ, edu.gsgp.nodes.functions.Sub
 # Builder used to generate trees for the initial population
 tree.build.builder = RHH
 # Builder used to generate random trees for the semantic operators
-tree.build.builder.random.tree = FULL
+tree.build.builder.random.tree = GROW
 # Type of selector used to select individuals for next generations
 pop.ind.selector = TOURNAMENT
 # Type of experiment (cross-validation or holdout):
@@ -56,4 +56,4 @@ breed.list = edu.gsgp.population.operator.GSMBreeder*0.5, edu.gsgp.population.op
 #breed.spread.alpha = 10
 # Builder used to generate a set of trees (forest) used by genetic operators
 forest.builder = ON_DEMAND
-experiment.timelimit = 30
+normalization.strategy = percentileminmax-80
