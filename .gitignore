@@ -2,3 +2,6 @@
 *.log
 experiments/dados
 /build
+.idea/
+*.iml
+out/
