@@ -38,7 +38,7 @@ public class Experimenter {
                 // Run the algorithm for a defined number of repetitions
                 for(int execution = 0; execution < parameters.getNumExperiments(); execution++){
                     parameters.updateExperimentalData();
-                    experiments[execution] = new Experiment(new GSGP(parameters, parameters.getExperimentalData()), execution);
+                    experiments[execution] = new Experiment(new GSGP(parameters, parameters.getExperimentalData(), parameters.getForestBuilder()), execution);
                     executor.execute(experiments[execution]);
                 }
                 executor.shutdown();

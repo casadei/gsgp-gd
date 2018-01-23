@@ -65,6 +65,10 @@ public class Utils {
     public static double sigmoid(double x){
         return 1/(1+Math.exp(-x));
     }
+
+    public static double logit(double x) {
+        return 1 * (1 - Math.log(x));
+    }
     
     public static double[] getSemantics(Dataset training, Node f){
         double[] newSemantic = new double[training.size()];

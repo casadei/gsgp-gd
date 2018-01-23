@@ -6,6 +6,7 @@
 
 package edu.gsgp.population.operator;
 
+import edu.gsgp.population.forestbuilder.ForestBuilder;
 import edu.gsgp.utils.MersenneTwister;
 import edu.gsgp.utils.Utils.DatasetType;
 import edu.gsgp.experiment.data.Dataset;
@@ -150,8 +151,8 @@ public class MGDBreeder extends Breeder{
      * @param expData Experimental data used to evaluate the individuals
      * @param currentGen Index of the current generation (1 to max_number_generations)
      */
-    public void setup(Population originalPop, ExperimentalData expData, int currentGen){
-        setup(originalPop, expData);
+    public void setup(Population originalPop, ExperimentalData expData, int currentGen, ForestBuilder forestBuilder){
+        setup(originalPop, expData, forestBuilder);
         effectiveProb = -properties.getSpreaderAlpha()*currentGen/properties.getNumGenerations();
         effectiveProb = properties.getSpreaderInitProb()*Math.exp(effectiveProb);
     }
@@ -162,8 +163,8 @@ public class MGDBreeder extends Breeder{
      * @param expData Experimental data used to evaluate the individuals
      */
     @Override
-    public void setup(Population originalPop, ExperimentalData expData){
-        super.setup(originalPop, expData);
+    public void setup(Population originalPop, ExperimentalData expData, ForestBuilder forestBuilder){
+        super.setup(originalPop, expData, forestBuilder);
         Dataset trainingData = expData.getDataset(DatasetType.TRAINING);
         numIndGreaterTarget = new int[trainingData.size()];
         numIndLessTarget = new int[trainingData.size()];

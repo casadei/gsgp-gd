@@ -16,6 +16,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+
+import edu.gsgp.population.forestbuilder.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -102,6 +104,11 @@ public class PropertiesManager {
     // Used do double check the parameters loaded/used by the experiment
     private StringBuilder loadedParametersLog;
 
+    private ForestBuilder forestBuilder;
+
+    private long nanosecondsTimeLimit;
+
+
     public PropertiesManager(String args[]) throws Exception{
         loadedParametersLog = new StringBuilder();
         
@@ -144,7 +151,10 @@ public class PropertiesManager {
         populationInitializer = getPopInitObject();
         breederList = getBreederObjects();
         
-        individualSelector = getIndividualSelector();        
+        individualSelector = getIndividualSelector();
+        forestBuilder = createForestBuilder();
+
+        nanosecondsTimeLimit = getLongProperty(ParameterList.TIME_LIMIT, -1) * 1000000000;
     }
 
     public enum ParameterList {
@@ -197,10 +207,12 @@ public class PropertiesManager {
         POP_INIT_ATTEMPTS("pop.initializer.attempts", "Number of attemtps before adding an individual in the population", false),
         
         SPREADER_PROB("breed.spread.prob", "Probability of applying the spreader operator (in standalone mode)", false),
-        SPREADER_ALPHA("breed.spread.alpha", "Alpha used to compute the effective probability of applying the spreader", false);
+        SPREADER_ALPHA("breed.spread.alpha", "Alpha used to compute the effective probability of applying the spreader", false),
 //        MUT_PROB("breed.mut.prob", "Probability of applying the mutation operator", false),
 //        XOVER_PROB("breed.xover.prob", "Probability of applying the crossover operator", false),
 //        SEMANTIC_SIMILARITY_THRESHOLD("sem.gp.epsilon", "Threshold used to determine if two semantics are similar", false);
+        FOREST_BUILDER("forest.builder", "The builder used to generate a set of trees (forest) used by the genetic operators.", false),
+        TIME_LIMIT("experiment.timelimit", "The maximum allowed duration time (in seconds) of an experiment.", false);
 
         public final String name;
         public final String description;
@@ -635,7 +647,29 @@ public class PropertiesManager {
             throw new ClassNotFoundException("Error loading the fitness function. Class " + fitnessClassname + " not found", e);
         } 
     }
-    
+
+    private ForestBuilder createForestBuilder() throws Exception {
+        String forestBuilderClassName = getStringProperty(ParameterList.FOREST_BUILDER, false).replaceAll("\\s", "");
+
+        switch (forestBuilderClassName) {
+            case "ON_DEMAND":
+                return new OnDemandForestBuilder(this);
+            case "ON_DEMAND_UNIQUE":
+                return new OnDemandUniqueForestBuilder(this);
+            case "PROBABILITY_DISTRIBUTED":
+                return new ProbabilityDistributedForestBuilder(this);
+            case "SDI":
+                return new SDIForestBuilder(this);
+            case "SMART":
+                return new SmartForestBuilder(this);
+            case "STATIC":
+                return new StaticForestBuilder(this);
+            default:
+                throw new ClassNotFoundException("Error loading the forest builder. Class " + forestBuilderClassName + " not found.");
+        }
+    }
+
+
     /**
      * Update the experimental data from the dataProducer
      */
@@ -846,4 +880,10 @@ public class PropertiesManager {
     public String getLoadedParametersString(){
         return loadedParametersLog.toString();
     }
+
+    public ForestBuilder getForestBuilder() {
+        return forestBuilder.softClone();
+    }
+
+    public long getNanosecondsTimeLimit() { return nanosecondsTimeLimit; }
 }

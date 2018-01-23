@@ -10,6 +10,7 @@ import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.population.Individual;
 import edu.gsgp.population.Population;
 import edu.gsgp.population.Individual;
+import edu.gsgp.population.forestbuilder.ForestBuilder;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
@@ -27,7 +28,10 @@ public class Statistics {
         ELAPSED_TIME("elapsedTime.csv"),
         LOADED_PARAMETERS("loadedParams.txt"),
         MDD_AVG("mddAverage.csv"),
-        MDD_SD("mddStdDev.csv");
+        MDD_SD("mddStdDev.csv"),
+        FOREST_SIZE("forestSize.csv"),
+        FOREST_REQUESTED_TREES("forestRetrievedTrees.csv"),
+        FOREST_UNIQUENESS_RATE("forestUniquenessRate.csv");
         
         private final String filePath;
 
@@ -43,6 +47,9 @@ public class Statistics {
     protected ExperimentalData expData;
     
     protected float elapsedTime;
+    protected int forestSize;
+    protected int forestRequestedTrees;
+    protected double forestUniquenessRate;
     protected String[] bestOfGenSize;
     protected String[] bestOfGenTsFitness;
     protected String[] bestOfGenTrFitness;
@@ -126,6 +133,12 @@ public class Statistics {
         elapsedTime += System.nanoTime() - methodTime;
     }
 
+    public void addForestStatistic(ForestBuilder forestBuilder) {
+        forestSize = forestBuilder.getSize();
+        forestRequestedTrees = forestBuilder.getNumberOfRequestedTrees();
+        forestUniquenessRate = forestBuilder.getUniquenessRate();
+    }
+
     public void finishEvolution(Individual bestIndividual) {
         elapsedTime = System.nanoTime() - elapsedTime;
         // Convert nanosecs to secs
@@ -151,6 +164,12 @@ public class Statistics {
                 return concatenateFloatArray(meanMDD);
             case MDD_SD:
                 return concatenateFloatArray(sdMDD);
+            case FOREST_SIZE:
+                return forestSize + "";
+            case FOREST_REQUESTED_TREES:
+                return forestRequestedTrees + "";
+            case FOREST_UNIQUENESS_RATE:
+                return forestUniquenessRate + "";
             default:
                 return null;
         }
@@ -240,6 +259,4 @@ public class Statistics {
         meanMDD[currentGeneration] = mean;
         sdMDD[currentGeneration] = (float)sd;
     }
-    
-    
 }

@@ -66,7 +66,7 @@ public class GSXMBreeder extends Breeder{
         Individual p1 = (Individual)properties.selectIndividual(originalPopulation, rndGenerator);
         Individual p2 = (Individual)properties.selectIndividual(originalPopulation, rndGenerator);
         while(p1.equals(p2)) p2 = (Individual)properties.selectIndividual(originalPopulation, rndGenerator);
-        Node rt = properties.getRandomTree(rndGenerator);
+        Node rt = forestBuilder.getRandomTree(rndGenerator);
         
         BigInteger numNodes = p1.getNumNodes().add(p2.getNumNodes()).add(new BigInteger(rt.getNumNodes() + "")).add(BigInteger.ONE);
         Fitness fitnessFunction = evaluate(p1, p2, rt, expData);

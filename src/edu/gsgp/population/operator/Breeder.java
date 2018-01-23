@@ -6,6 +6,7 @@
 
 package edu.gsgp.population.operator;
 
+import edu.gsgp.population.forestbuilder.ForestBuilder;
 import edu.gsgp.utils.MersenneTwister;
 import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.experiment.config.PropertiesManager;
@@ -24,6 +25,7 @@ public abstract class Breeder{
     protected PropertiesManager properties;
     protected double probability;
     protected Population originalPopulation;
+    protected ForestBuilder forestBuilder;
     
     protected Breeder(PropertiesManager properties, double probability) {
         this.properties = properties;
@@ -38,7 +40,8 @@ public abstract class Breeder{
     
     public abstract Individual generateIndividual(MersenneTwister rndGenerator, ExperimentalData expData);
     
-    public void setup(Population originalPopulation, ExperimentalData expData){
+    public void setup(Population originalPopulation, ExperimentalData expData, ForestBuilder forestBuilder){
         this.originalPopulation = originalPopulation;
+        this.forestBuilder = forestBuilder;
     }
 }

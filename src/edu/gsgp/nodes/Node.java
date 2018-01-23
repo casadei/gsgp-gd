@@ -27,5 +27,5 @@ public interface Node {
     
     public void setParent(Node parent, int argPosition);
     
-    public int getParentArgPosition();    
+    public int getParentArgPosition();
 }

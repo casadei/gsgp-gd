@@ -60,8 +60,8 @@ public class GSMBreeder extends Breeder{
     @Override
     public Individual generateIndividual(MersenneTwister rndGenerator, ExperimentalData expData) {
         Individual p = (Individual)properties.selectIndividual(originalPopulation, rndGenerator);
-        Node rt1 = properties.getRandomTree(rndGenerator);
-        Node rt2 = properties.getRandomTree(rndGenerator);
+        Node rt1 = forestBuilder.getRandomTree(rndGenerator);
+        Node rt2 = forestBuilder.getRandomTree(rndGenerator);
         BigInteger numNodes = p.getNumNodes().add(new BigInteger(rt1.getNumNodes()+"")).
                                               add(new BigInteger(rt2.getNumNodes()+"")).
                                               add(BigInteger.ONE);

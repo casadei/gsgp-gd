@@ -25,7 +25,7 @@ public class MGDPipe extends Pipeline{
     @Override
     public Population evolvePopulation(Population originalPop, ExperimentalData expData, int size) {
         MGDBreeder spreader = new MGDBreeder(properties, 0.0);
-        spreader.setup(originalPop, expData, currentGen++);
+        spreader.setup(originalPop, expData, currentGen++, forestBuilder);
         Population newPopulation = new Population();
         for(int i = 0; i < originalPop.size(); i++){
             double floatDice = rndGenerator.nextDouble();
@@ -40,7 +40,7 @@ public class MGDPipe extends Pipeline{
         // =====================================================================
         
         // Update the breeder with the current population before generating a new one
-        for(Breeder breeder : breederArray) ((Breeder)breeder).setup(originalPop, expData);     
+        for(Breeder breeder : breederArray) ((Breeder)breeder).setup(originalPop, expData, forestBuilder);
         
         // Generate the new population from the original one
         for(int i = 0; i < size; i++){

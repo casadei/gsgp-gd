@@ -82,7 +82,7 @@ public class SDIPopulator extends Populator{
         Function candidateFunc = null;
         Fitness candidateFuncFitness = null;
         // Add new individuals until the population is complete
-        while(population.size() < properties.getPopulationSize()){
+        while(population.size() < size){
             // Select a random function from the function set
             Function func = properties.getRandomFunction(rndGenerator);
             for(int i = 0; i < func.getArity(); i++){
@@ -119,8 +119,6 @@ public class SDIPopulator extends Populator{
                     population.add(newIndividual);
                     // Reset the counter 
                     numAttempts = 0;
-
-                    System.out.println(population.size());
                 }
             }
             // If the maximum number o attempts to generate a different individual was

@@ -31,7 +31,10 @@ public class DataWriter {
                                      StatsType.SEMANTICS,
                                      StatsType.ELAPSED_TIME,
                                      StatsType.MDD_AVG,
-                                     StatsType.MDD_SD};
+                                     StatsType.MDD_SD,
+                                     StatsType.FOREST_SIZE,
+                                     StatsType.FOREST_REQUESTED_TREES,
+                                     StatsType.FOREST_UNIQUENESS_RATE};
         for(StatsType type : writeableStats){
             writeOnFile(outputPath, outputPrefix, 
                     experimentId + "," + statistic.asWritableString(type) + "\n", type);

@@ -6,6 +6,7 @@
 
 package edu.gsgp.population.operator;
 
+import edu.gsgp.population.forestbuilder.ForestBuilder;
 import edu.gsgp.utils.MersenneTwister;
 import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.experiment.config.PropertiesManager;
