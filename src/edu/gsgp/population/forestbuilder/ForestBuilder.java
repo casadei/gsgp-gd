@@ -5,6 +5,7 @@ import edu.gsgp.experiment.data.Dataset;
 import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.experiment.data.Instance;
 import edu.gsgp.nodes.Node;
+import edu.gsgp.normalization.NormalizationStrategy;
 import edu.gsgp.population.fitness.Fitness;
 import edu.gsgp.utils.MersenneTwister;
 import edu.gsgp.utils.Utils;
@@ -55,9 +56,12 @@ public abstract class ForestBuilder {
 
         fitnessFunction.resetFitness(dataType, experimentalData);
         Dataset dataset = experimentalData.getDataset(dataType);
+        NormalizationStrategy normalizer = propertiesManager.getNormalizationStrategy();
+        normalizer.setup(dataset, tree);
+
         int instanceIndex = 0;
         for (Instance instance : dataset) {
-            double estimated = tree.eval(instance.input);
+            double estimated = normalizer.normalize(instance);
             fitnessFunction.setSemanticsAtIndex(estimated, instance.output, instanceIndex++, dataType);
         }
 
