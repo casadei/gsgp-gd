@@ -1,4 +1,3 @@
 parent = ~/experiments/scripts/masterGSGP.param
-experiment.data = ~/experiments/dados/airfoil-#.dat
+experiment.data = ~/experiments/data/airfoil-#.csv
 experiment.file.prefix = airfoil-sgp
-

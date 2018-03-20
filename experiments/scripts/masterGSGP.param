@@ -8,8 +8,6 @@ tree.build.terminals = edu.gsgp.nodes.terminals.ERC
 tree.build.functions = edu.gsgp.nodes.functions.AQ, edu.gsgp.nodes.functions.Sub, edu.gsgp.nodes.functions.Add, edu.gsgp.nodes.functions.Mul
 # Builder used to generate trees for the initial population
 tree.build.builder = RHH
-# Builder used to generate random trees for the semantic operators
-tree.build.builder.random.tree = GROW
 # Type of selector used to select individuals for next generations
 pop.ind.selector = TOURNAMENT
 # Type of experiment (cross-validation or holdout):
@@ -27,9 +25,9 @@ tree.build.max.depth = 6
 # Min depth allowed when building trees
 tree.min.depth = 2
 # Population size
-pop.size = 1000
+pop.size = 100
 # Number of generations
-evol.num.generation = 2000
+evol.num.generation = 5
 # Tournament size, when using tournament as selector
 pop.ind.selector.tourn.size = 10
 # Number of experiment repetitions (per fold) - default = 1
@@ -53,5 +51,7 @@ breed.list = edu.gsgp.population.operator.GSMBreeder*0.5, edu.gsgp.population.op
 #breed.spread.prob = 0.5
 # Alpha used to compute the effective probability of applying the spreader"
 #breed.spread.alpha = 10
+# Builder used to generate random trees for the semantic operators
+tree.build.builder.random.tree = RHH
 # Normalization Strategy
-normalization.strategy = zscorepercentileminmax-80
+normalization.strategy = percentileminmax-80
