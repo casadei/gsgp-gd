@@ -46,6 +46,7 @@ def execute(dataset, normalization, builder)
   %x{mkdir -p ~/results}
   %x{mkdir -p ~/results/norm-#{normalization}}
   %x{mkdir -p ~/results/norm-#{normalization}/#{builder}}
+  %x{rm -rf ~/results/norm-#{normalization}/#{builder}/#{dataset}-sgp}
   %x(mv /tmp/*-sgp ~/results/norm-#{normalization}/#{builder})
 
 end
