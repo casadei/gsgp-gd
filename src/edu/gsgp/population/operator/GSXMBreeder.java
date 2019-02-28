@@ -37,7 +37,7 @@ public class GSXMBreeder extends Breeder{
         Fitness fitnessFunction = ind1.getFitnessFunction().softClone();
         for(DatasetType dataType : DatasetType.values()){
             // Compute the (training/test) semantics of generated random tree
-            fitnessFunction.resetFitness(dataType, expData);
+            fitnessFunction.resetFitness(dataType, expData, properties.getNumberOfObjectives());
             Dataset dataset = expData.getDataset(dataType);
             double[] semInd1;
             double[] semInd2;

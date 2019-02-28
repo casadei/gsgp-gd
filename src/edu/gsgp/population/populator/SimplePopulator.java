@@ -40,7 +40,7 @@ public class SimplePopulator extends Populator{
         Fitness fitnessFunction = properties.geFitnessFunction();
         for(DatasetType dataType : DatasetType.values()){
             // Compute the (training/test) semantics of generated random tree
-            fitnessFunction.resetFitness(dataType, expData);
+            fitnessFunction.resetFitness(dataType, expData, properties.getNumberOfObjectives());
             Dataset dataset = expData.getDataset(dataType);
             int instanceIndex = 0;
             for (Instance instance : dataset) {
@@ -62,7 +62,7 @@ public class SimplePopulator extends Populator{
      */
     @Override
     public Population populate(MersenneTwister rndGenerator, ExperimentalData expData, int size) {
-        Population population = new Population();
+        Population population = new Population(properties);
         for(int i = 0; i < size; i++){
             Node newTree = properties.getNewIndividualTree(rndGenerator);
             Fitness fitnessFunction = evaluate(newTree, expData);

@@ -11,6 +11,8 @@ import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.nodes.Node;
 import edu.gsgp.population.fitness.Fitness;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -19,9 +21,13 @@ import java.math.BigInteger;
  * luiz.vbo@gmail.com
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
-public class Individual implements Comparable<Individual>{
+public class Individual {
     protected Node tree;    
     protected Fitness fitnessFunction;
+    public double distance;
+    public int dominanceRank;
+    public int dominanceCount;
+    public List<Individual> dominanceSet = new ArrayList();
 
     public Individual(Node tree, Fitness fitnessFunction){
         this.tree = tree;
@@ -48,17 +54,6 @@ public class Individual implements Comparable<Individual>{
     public Node getTree() {
         return tree;
     }
-    
-    @Override
-    public int compareTo(Individual o) {
-        if (getFitness() < o.getFitness()){
-            return -1;
-        }
-        if (getFitness() > o.getFitness()) {
-            return 1;
-        }
-        return 0;
-    }
 
     public void setTree(Node randomSubtree) {
         this.tree = randomSubtree;
@@ -79,19 +74,19 @@ public class Individual implements Comparable<Individual>{
     public void startNumNodes() {
         fitnessFunction.setNumNodes(tree.getNumNodes());
     }
-    
-    
+
+    public void resetDominance() {
+        dominanceCount = 0;
+        dominanceRank = 0;
+        dominanceSet.clear();
+    }
+
     @Override
     public Individual clone(){
         if(tree != null)
             return new Individual(tree.clone(null), fitnessFunction);
         return new Individual(fitnessFunction);
     }
-    
-    public boolean isBestSolution(double minError) {
-        return getFitness() <= minError;
-    }
-
     
     public String toString() {
         return tree.toString(); //To change body of generated methods, choose Tools | Templates.
@@ -100,21 +95,31 @@ public class Individual implements Comparable<Individual>{
     public String getNumNodesAsString() {
         return fitnessFunction.getNumNodes().toString();
     }
-
     
     public String getTrainingFitnessAsString() {
-        return Utils.format(fitnessFunction.getTrainingFitness());
-    }
+        double[] fitness = fitnessFunction.getTrainingFitness();
+        String[] formattedFitness = new String[fitness.length];
 
+        for (int i = 0; i < fitness.length; i++) {
+            formattedFitness[i] = Utils.format(fitness[i]);
+        }
+
+        return String.join(";", formattedFitness);
+    }
     
     public String getTestFitnessAsString() {
-        return Utils.format(fitnessFunction.getTestFitness());
+        double[] fitness = fitnessFunction.getTestFitness();
+        String[] formattedFitness = new String[fitness.length];
+
+        for (int i = 0; i < fitness.length; i++) {
+            formattedFitness[i] = Utils.format(fitness[i]);
+        }
+
+        return String.join(";", formattedFitness);
     }
     
-    public double getFitness() {
-        double value = fitnessFunction.getComparableValue();
-        if(Double.isInfinite(value) || Double.isNaN(value)) return Double.MAX_VALUE;
-        return value;
+    public double[] getFitness() {
+        return fitnessFunction.getComparableValue();
     }
     
     public BigInteger getNumNodes() {
@@ -124,9 +129,17 @@ public class Individual implements Comparable<Individual>{
     public double[] getTrainingSemantics() {
         return fitnessFunction.getSemantics(Utils.DatasetType.TRAINING);
     }
-
     
     public double[] getTestSemantics() {
         return fitnessFunction.getSemantics(Utils.DatasetType.TEST);
-    }    
+    }
+
+    public double[] getTrainingFitness() {
+        return fitnessFunction.getTrainingFitness();
+    }
+
+    public double[] getTestFitness() {
+        return fitnessFunction.getTrainingFitness();
+    }
+
 }

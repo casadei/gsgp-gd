@@ -29,9 +29,7 @@ public class DataWriter {
                                      StatsType.BEST_OF_GEN_TR_FIT, 
                                      StatsType.BEST_OF_GEN_TS_FIT,
                                      StatsType.SEMANTICS,
-                                     StatsType.ELAPSED_TIME,
-                                     StatsType.MDD_AVG,
-                                     StatsType.MDD_SD};
+                                     StatsType.ELAPSED_TIME};
         for(StatsType type : writeableStats){
             writeOnFile(outputPath, outputPrefix, 
                     experimentId + "," + statistic.asWritableString(type) + "\n", type);

@@ -21,15 +21,19 @@ public abstract class Fitness{
     protected double[] semanticsTs;
     
     protected BigInteger numNodes;
-    
-    
 
     public Fitness() {
         this(0);
     }
-    
-    public Fitness(int numNodes){
+
+    public Fitness(int numNodes) {
         this.numNodes = new BigInteger(numNodes + "");
+    }
+    
+    public Fitness(int numNodes, double[] semanticsTr, double[] semanticsTs){
+        this.numNodes = new BigInteger(numNodes + "");
+        this.semanticsTr = semanticsTr;
+        this.semanticsTs = semanticsTs;
     }
     
     /**
@@ -114,12 +118,12 @@ public abstract class Fitness{
      * @param dataType Inidicate if the fitness refer to training or test set
      * @param datasets Training and test data in an ExperimentalData object
      */
-    public abstract void resetFitness(DatasetType dataType, ExperimentalData datasets);
+    public abstract void resetFitness(DatasetType dataType, ExperimentalData datasets, int numberOfObjectives);
     public abstract void setSemanticsAtIndex(double estimated, double desired, int index, DatasetType dataType);
     public abstract void computeFitness(DatasetType dataType);
     
     public abstract Fitness softClone();
-    public abstract double getTrainingFitness();
-    public abstract double getTestFitness();
-    public abstract double getComparableValue();
+    public abstract double[] getTrainingFitness();
+    public abstract double[] getTestFitness();
+    public abstract double[] getComparableValue();
 }

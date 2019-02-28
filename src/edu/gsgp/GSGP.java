@@ -34,7 +34,7 @@ public class GSGP {
         rndGenerator = properties.getRandomGenerator();
     }
     
-    public void evolve() throws Exception{
+    public void evolve() throws Exception {
         boolean canStop = false;     
         
         Populator populator = properties.getPopulationInitializer();
@@ -48,19 +48,20 @@ public class GSGP {
         statistics.addGenerationStatistic(population);
         
         for(int i = 0; i < properties.getNumGenerations() && !canStop; i++){
-            System.out.println("Generation " + (i+1) + ":");
-                        
             // Evolve a new Population
             Population newPopulation = pipe.evolvePopulation(population, expData, properties.getPopulationSize()-1);
             // The first position is reserved for the best of the generation (elitism)
-            newPopulation.add(population.getBestIndividual());
-            Individual bestIndividual = newPopulation.getBestIndividual();
-            if(bestIndividual.isBestSolution(properties.getMinError())) canStop = true;
+
+            for (Individual individual : population.getBestIndividuals()) {
+                newPopulation.add(individual);
+            }
+
+            population.resetFronts();
             population = newPopulation;
             
             statistics.addGenerationStatistic(population);
         }
-        statistics.finishEvolution(population.getBestIndividual());
+        statistics.finishEvolution(population.getBestIndividuals());
     }
 
     public Statistics getStatistics() {

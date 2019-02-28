@@ -25,7 +25,7 @@ public class StandardPipe extends Pipeline{
         // =====================================================================
         
         // Generate the new population from the original one
-        Population newPopulation = new Population();
+        Population newPopulation = new Population(properties);
         for(int i = 0; i < size; i++){
             double floatDice = rndGenerator.nextDouble();
             double probabilitySum = 0;

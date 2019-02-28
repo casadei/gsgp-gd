@@ -46,7 +46,7 @@ public class SDIPopulator extends Populator{
         Fitness fitnessFunction = properties.geFitnessFunction();
         for(DatasetType dataType : DatasetType.values()){
             // Compute the (training/test) semantics of generated random tree
-            fitnessFunction.resetFitness(dataType, expData);
+            fitnessFunction.resetFitness(dataType, expData, properties.getNumberOfObjectives());
             Dataset dataset = expData.getDataset(dataType);
             int instanceIndex = 0;
             for (Instance instance : dataset) {
@@ -66,7 +66,7 @@ public class SDIPopulator extends Populator{
      */
     @Override
     public Population populate(MersenneTwister rndGenerator, ExperimentalData expData, int size) {        
-        Population population = new Population();
+        Population population = new Population(properties);
         Terminal[] terminalSet = properties.getTerminalSet(rndGenerator);
         // Initialize pop with all the Inputs
         for(Terminal t : terminalSet){

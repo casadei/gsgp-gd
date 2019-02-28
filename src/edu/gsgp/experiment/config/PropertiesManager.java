@@ -16,6 +16,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+
+import edu.gsgp.population.selector.CrowdedTournamentSelector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -102,6 +104,8 @@ public class PropertiesManager {
     // Used do double check the parameters loaded/used by the experiment
     private StringBuilder loadedParametersLog;
 
+    private int numberOfObjectives;
+
     public PropertiesManager(String args[]) throws Exception{
         loadedParametersLog = new StringBuilder();
         
@@ -144,7 +148,9 @@ public class PropertiesManager {
         populationInitializer = getPopInitObject();
         breederList = getBreederObjects();
         
-        individualSelector = getIndividualSelector();        
+        individualSelector = getIndividualSelector();
+
+        numberOfObjectives = getIntegerProperty(ParameterList.DATA_CLASSIFIER_K, 0);
     }
 
     public enum ParameterList {
@@ -197,10 +203,9 @@ public class PropertiesManager {
         POP_INIT_ATTEMPTS("pop.initializer.attempts", "Number of attemtps before adding an individual in the population", false),
         
         SPREADER_PROB("breed.spread.prob", "Probability of applying the spreader operator (in standalone mode)", false),
-        SPREADER_ALPHA("breed.spread.alpha", "Alpha used to compute the effective probability of applying the spreader", false);
-//        MUT_PROB("breed.mut.prob", "Probability of applying the mutation operator", false),
-//        XOVER_PROB("breed.xover.prob", "Probability of applying the crossover operator", false),
-//        SEMANTIC_SIMILARITY_THRESHOLD("sem.gp.epsilon", "Threshold used to determine if two semantics are similar", false);
+        SPREADER_ALPHA("breed.spread.alpha", "Alpha used to compute the effective probability of applying the spreader", false),
+        DATA_CLASSIFIER("data.classifier", "Class responsible for doing data classification of each instance of the data sets", true),
+        DATA_CLASSIFIER_K("data.classifier.k", "Number of K available classes used in the data classification.", false);
 
         public final String name;
         public final String description;
@@ -286,6 +291,9 @@ public class PropertiesManager {
         switch(value){
             case "tournament":
                 indSelector = new TournamentSelector(getIntegerProperty(ParameterList.TOURNAMENT_SIZE, 7));
+                break;
+            case "crowding_distance":
+                indSelector = new CrowdedTournamentSelector(getIntegerProperty(ParameterList.TOURNAMENT_SIZE, 7));
                 break;
             default:
                 throw new Exception("The inidividual selector must be defined.");
@@ -846,4 +854,9 @@ public class PropertiesManager {
     public String getLoadedParametersString(){
         return loadedParametersLog.toString();
     }
+
+    public int getNumberOfObjectives() {
+        return this.numberOfObjectives;
+    }
+
 }

@@ -10,6 +10,7 @@ import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.population.Individual;
 import edu.gsgp.population.Population;
 import edu.gsgp.population.Individual;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
@@ -25,10 +26,8 @@ public class Statistics {
         BEST_OF_GEN_TS_FIT("tsFitness.csv"), 
         BEST_OF_GEN_TR_FIT("trFitness.csv"),
         ELAPSED_TIME("elapsedTime.csv"),
-        LOADED_PARAMETERS("loadedParams.txt"),
-        MDD_AVG("mddAverage.csv"),
-        MDD_SD("mddStdDev.csv");
-        
+        LOADED_PARAMETERS("loadedParams.txt");
+
         private final String filePath;
 
         private StatsType(String filePath) {
@@ -50,8 +49,8 @@ public class Statistics {
     protected float[] meanMDD;
     protected float[] sdMDD;
     
-    private double[] bestTrainingSemantics;
-    private double[] bestTestSemantics;
+    private String bestTrainingSemantics;
+    private String bestTestSemantics;
         
     protected int currentGeneration;
     // ========================= ADDED FOR GECCO PAPER =========================
@@ -109,30 +108,50 @@ public class Statistics {
         // In order to not contabilize the time elapsed by this method we subtract
         // the time elapsed
         long methodTime = System.nanoTime();
-        
-        Individual bestOfGen = pop.getBestIndividual();
-       
-        bestOfGenSize[currentGeneration] = bestOfGen.getNumNodesAsString();
-        bestOfGenTrFitness[currentGeneration] = bestOfGen.getTrainingFitnessAsString();
-        bestOfGenTsFitness[currentGeneration] = bestOfGen.getTestFitnessAsString();
-        
-        computeMDD(pop);
-        
-        System.out.println("Best of Gen (RMSE-TR/RMSE-TS/nodes: " + bestOfGenTrFitness[currentGeneration] + 
-                           "/" + bestOfGenTsFitness[currentGeneration] + "/" + bestOfGenSize[currentGeneration]);
+
+        Individual[] bestOfGen = pop.getBestIndividuals();
+
+        String[] sizes = new String[bestOfGen.length];
+        String[] trFitnesses = new String[bestOfGen.length];
+        String[] tsFitnesses = new String[bestOfGen.length];
+
+        for (int i = 0; i < bestOfGen.length; i++) {
+            sizes[i] = bestOfGen[i].getNumNodesAsString();
+            trFitnesses[i] = bestOfGen[i].getTrainingFitnessAsString();
+            tsFitnesses[i] = bestOfGen[i].getTestFitnessAsString();
+        }
+
+        bestOfGenSize[currentGeneration] = String.join("|", sizes);
+        bestOfGenTrFitness[currentGeneration] = String.join("|", trFitnesses);
+        bestOfGenTsFitness[currentGeneration] = String.join("|", tsFitnesses);
+
+        System.out.println("Best of Gen " + (currentGeneration + 1) + ": RMSE-TR: " + bestOfGenTrFitness[currentGeneration]);
+
         currentGeneration++;
         
         // Ignore the time elapsed to store the statistics
         elapsedTime += System.nanoTime() - methodTime;
     }
 
-    public void finishEvolution(Individual bestIndividual) {
+    public void finishEvolution(Individual[] bestIndividuals) {
         elapsedTime = System.nanoTime() - elapsedTime;
         // Convert nanosecs to secs
         elapsedTime /= 1000000000;
-        
-        bestTestSemantics = ((Individual)bestIndividual).getTestSemantics();
-        bestTrainingSemantics = bestIndividual.getTrainingSemantics();
+
+        String[] trFitness = new String[bestIndividuals.length];
+        String[] tsFitness = new String[bestIndividuals.length];
+        String[] trSemantics = new String[bestIndividuals.length];
+        String[] tsSemantics = new String[bestIndividuals.length];
+
+        for (int i = 0; i < bestIndividuals.length; i++) {
+            trFitness[i] = bestIndividuals[i].getTrainingFitnessAsString();
+            tsFitness[i] = bestIndividuals[i].getTestFitnessAsString();
+            trSemantics[i] = StringUtils.join(bestIndividuals[i].getTrainingSemantics(), ',');
+            tsSemantics[i] = StringUtils.join(bestIndividuals[i].getTestSemantics(), ',');
+        }
+
+        bestTrainingSemantics = String.join("|", trSemantics);
+        bestTestSemantics = String.join("|", tsSemantics);
     }
     
     public String asWritableString(StatsType type) {
@@ -142,15 +161,11 @@ public class Statistics {
             case BEST_OF_GEN_TR_FIT:
                 return concatenateArray(bestOfGenTrFitness);
             case SEMANTICS:
-                return getSemanticsAsString();
+                return bestTrainingSemantics;
             case BEST_OF_GEN_TS_FIT:
                 return concatenateArray(bestOfGenTsFitness);
             case ELAPSED_TIME:
                 return elapsedTime + "";
-            case MDD_AVG:
-                return concatenateFloatArray(meanMDD);
-            case MDD_SD:
-                return concatenateFloatArray(sdMDD);
             default:
                 return null;
         }
@@ -173,73 +188,8 @@ public class Statistics {
         str.append(Utils.format(floatArray[floatArray.length-1]));        
         return str.toString();
     }
-        
-    private String getSemanticsAsString() {
-        StringBuffer str = new StringBuffer();
-        // ======================= ADDED FOR GECCO PAPER =======================
-//        for(int[] trGE : trGeTarget){
-//            for(int i = 0; i < trGE.length; i++){
-//                str.append(trGE[i] + ",");
-//            }
-//        
-//        }
-        // =====================================================================
-        
-        for(int i = 0; i < bestTrainingSemantics.length; i++){
-            str.append(bestTrainingSemantics[i] + ",");
-        }
-        
-        String sep = "";
-        // ======================= ADDED FOR GECCO PAPER =======================
-//        for(int[] tsGE : tsGeTarget){
-//            for(int i = 0; i < tsGE.length; i++){
-//                str.append(sep + tsGE[i]);
-//                sep = ",";
-//            }
-//        }
-        // =====================================================================
-            
-        for(int i = 0; i < bestTestSemantics.length; i++){
-            str.append(sep + bestTestSemantics[i]);
-            sep = ",";
-        }
-        
-        return str.toString();
-    }
-    
+
     public void startClock(){
         elapsedTime = System.nanoTime();
     }
-    
-    private void computeMDD(Population pop) {
-        // Target vector
-        double[] t = expData.getDataset(Utils.DatasetType.TRAINING).getOutputs();
-        // Store the counting of individuals greater or equal to the target in each dimension
-        float[] ge = new float[t.length];
-        for(Individual ind : pop){
-            for(int i = 0; i < ge.length; i++){
-                if(ind.getTrainingSemantics()[i] >= t[i]){
-                    ge[i]++;
-                }
-            }
-        }
-        float mean = 0;
-        double sd = 0;
-        for(int i = 0; i < ge.length; i++){
-            ge[i] /= pop.size();
-            ge[i] = (float)Math.abs(ge[i]-0.5);
-            mean += ge[i];
-        }
-        mean /= (ge.length);
-        for(int i = 0; i < ge.length; i++){
-            double aux = ge[i] - mean;
-            sd += aux*aux;
-        }
-        sd /= ge.length-1;
-        sd = Math.sqrt(sd);
-        meanMDD[currentGeneration] = mean;
-        sdMDD[currentGeneration] = (float)sd;
-    }
-    
-    
 }
