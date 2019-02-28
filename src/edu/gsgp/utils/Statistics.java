@@ -125,7 +125,7 @@ public class Statistics {
         bestOfGenTrFitness[currentGeneration] = String.join("|", trFitnesses);
         bestOfGenTsFitness[currentGeneration] = String.join("|", tsFitnesses);
 
-        System.out.println("Best of Gen " + (currentGeneration + 1) + ": RMSE-TR: " + bestOfGenTrFitness[currentGeneration]);
+        System.out.println("Best of Gen " + (currentGeneration) + ": RMSE-TR: " + bestOfGenTrFitness[currentGeneration]);
 
         currentGeneration++;
         
@@ -138,14 +138,10 @@ public class Statistics {
         // Convert nanosecs to secs
         elapsedTime /= 1000000000;
 
-        String[] trFitness = new String[bestIndividuals.length];
-        String[] tsFitness = new String[bestIndividuals.length];
         String[] trSemantics = new String[bestIndividuals.length];
         String[] tsSemantics = new String[bestIndividuals.length];
 
         for (int i = 0; i < bestIndividuals.length; i++) {
-            trFitness[i] = bestIndividuals[i].getTrainingFitnessAsString();
-            tsFitness[i] = bestIndividuals[i].getTestFitnessAsString();
             trSemantics[i] = StringUtils.join(bestIndividuals[i].getTrainingSemantics(), ',');
             tsSemantics[i] = StringUtils.join(bestIndividuals[i].getTestSemantics(), ',');
         }

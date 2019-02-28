@@ -29,7 +29,7 @@ tree.min.depth = 2
 # Population size
 pop.size = 1000
 # Number of generations
-evol.num.generation = 250
+evol.num.generation = 25
 # Tournament size, when using tournament as selector
 pop.ind.selector.tourn.size = 10
 # Number of experiment repetitions (per fold) - default = 1
@@ -55,4 +55,4 @@ breed.list = edu.gsgp.population.operator.GSMBreeder*0.5, edu.gsgp.population.op
 # Alpha used to compute the effective probability of applying the spreader"
 #breed.spread.alpha = 2.0
 # Number of objectives
-data.classifier.k = 1
+data.classifier.k = 2
