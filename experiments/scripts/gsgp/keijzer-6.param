@@ -1,6 +1,4 @@
-parent = ~/experiments/scripts/masterGSGP.param
-experiment.data = ~/experiments/dados/keijzer-6-#.dat
-experiment.file.prefix = keijzer-6-sgp
+parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
+experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/keijzer-6-#.dat
+experiment.file.prefix = keijzer-6
 
-
-experiment.design = HOLDOUT
