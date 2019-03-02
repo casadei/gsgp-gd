@@ -27,7 +27,7 @@ public class DataWriter {
     public static void writeResults(String outputPath,
                                     String outputPrefix, 
                                     Statistics statistic,
-                                    int experimentId) throws Exception{
+                                    int experimentId) throws Exception {
         StatsType writeableStats[] = {
                 StatsType.BEST_OF_GEN_SIZE,
                 StatsType.BEST_OF_GEN_TR_FIT,
@@ -35,6 +35,8 @@ public class DataWriter {
                 StatsType.TRAINING_SEMANTICS,
                 StatsType.TEST_SEMANTICS,
                 StatsType.ELAPSED_TIME,
+                StatsType.SMART_TRAINING_FITNESS,
+                StatsType.SMART_TRAINING_SEMANTICS,
                 StatsType.SMART_TEST_FITNESS,
                 StatsType.SMART_TEST_SEMANTICS
         };
