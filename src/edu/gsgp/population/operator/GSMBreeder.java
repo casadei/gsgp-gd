@@ -50,7 +50,7 @@ public class GSMBreeder extends Breeder{
                 double rtValue = Utils.sigmoid(randomTree1.eval(instance.input));
                 rtValue -= Utils.sigmoid(randomTree2.eval(instance.input));
                 double estimated = semInd[instanceIndex] + properties.getMutationStep() * rtValue;
-                fitnessFunction.setSemanticsAtIndex(estimated, instance.output, instanceIndex++, dataType);
+                fitnessFunction.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, dataType);
             }
             fitnessFunction.computeFitness(dataType);
         }

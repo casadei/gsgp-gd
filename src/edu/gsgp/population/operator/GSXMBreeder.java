@@ -54,7 +54,7 @@ public class GSXMBreeder extends Breeder{
                 double rtValue = Utils.sigmoid(randomTree.eval(instance.input));
 //                double estimated = rtValue*ind1.getTrainingSemantics()[instanceIndex] + (1-rtValue)*ind2.getTrainingSemantics()[instanceIndex];
                 double estimated = rtValue*semInd1[instanceIndex] + (1-rtValue)*semInd2[instanceIndex];
-                fitnessFunction.setSemanticsAtIndex(estimated, instance.output, instanceIndex++, dataType);
+                fitnessFunction.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, dataType);
             }
             fitnessFunction.computeFitness(dataType);
         }

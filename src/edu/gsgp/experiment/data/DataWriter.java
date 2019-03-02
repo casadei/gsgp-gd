@@ -12,6 +12,9 @@ import java.io.File;
 import java.io.FileWriter;
 import edu.gsgp.utils.Statistics.StatsType;
 import edu.gsgp.experiment.config.PropertiesManager;
+import edu.gsgp.utils.Utils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 
 /**
@@ -25,12 +28,18 @@ public class DataWriter {
                                     String outputPrefix, 
                                     Statistics statistic,
                                     int experimentId) throws Exception{
-        StatsType writeableStats[] = {StatsType.BEST_OF_GEN_SIZE, 
-                                     StatsType.BEST_OF_GEN_TR_FIT, 
-                                     StatsType.BEST_OF_GEN_TS_FIT,
-                                     StatsType.SEMANTICS,
-                                     StatsType.ELAPSED_TIME};
-        for(StatsType type : writeableStats){
+        StatsType writeableStats[] = {
+                StatsType.BEST_OF_GEN_SIZE,
+                StatsType.BEST_OF_GEN_TR_FIT,
+                StatsType.BEST_OF_GEN_TS_FIT,
+                StatsType.TRAINING_SEMANTICS,
+                StatsType.TEST_SEMANTICS,
+                StatsType.ELAPSED_TIME,
+                StatsType.SMART_TEST_FITNESS,
+                StatsType.SMART_TEST_SEMANTICS
+        };
+
+        for (StatsType type : writeableStats){
             writeOnFile(outputPath, outputPrefix, 
                     experimentId + "," + statistic.asWritableString(type) + "\n", type);
         }
@@ -53,11 +62,34 @@ public class DataWriter {
         BufferedWriter bw;
         bw = new BufferedWriter(new FileWriter(outputDir.getAbsolutePath()+ File.separator + "outputs.csv"));
 //        bw.write(getDesiredOutputs(data));
-        bw.write(getStatisticsFromArray(statsArray, StatsType.SEMANTICS));
+        bw.write(getStatisticsFromArray(statsArray, StatsType.TRAINING_SEMANTICS));
         bw.close();
     }
-    
-    /**
+
+    public static void writeGroups(PropertiesManager properties, ExperimentalData data, int execution) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        sb.append(properties.getNumberOfObjectives());
+        sb.append("\n");
+
+        for (Utils.DatasetType dataType : Utils.DatasetType.values()) {
+            for (Instance instance : data.getDataset(dataType)) {
+                sb.append(dataType.toString() + ",");
+                sb.append(instance.groups + ",");
+                sb.append(StringUtils.join(instance.input, ','));
+                sb.append("," + instance.output);
+                sb.append("\n");
+            }
+        }
+
+        writeOnFile(
+                properties.getOutputDir(),
+                properties.getFilePrefix(),
+                sb.toString(),
+                String.format(StatsType.GROUPS.getPath(), execution));
+    }
+
+
+    /**    /**
      * Write some information to the output file
      * @param outputPath Path to the directory where the output will be written
      * @param outputPrefix Name of the directory where the files will be written
@@ -65,23 +97,32 @@ public class DataWriter {
      * @param statsType Type of information
      * @throws NullPointerException The pathname was not found
      * @throws SecurityException If a required system property value cannot be accessed
-     * @throws IOException If the file exists but is a directory rather than a regular 
+     * @throws IOException If the file exists but is a directory rather than a regular
      * file, does not exist but cannot be created, or cannot be opened for any other reason
      */
     private static void writeOnFile(String outputPath,
-                                   String outputPrefix, 
-                                   String info,
-                                   StatsType statsType) throws NullPointerException, SecurityException, IOException{
+                                    String outputPrefix,
+                                    String info,
+                                    StatsType statsType) throws NullPointerException, SecurityException, IOException {
+
+        writeOnFile(outputPath, outputPrefix, info, statsType.getPath());
+    }
+
+    private static void writeOnFile(String outputPath,
+                                    String outputPrefix,
+                                    String info,
+                                    String path) throws NullPointerException, SecurityException, IOException {
+
         File outputDir = getOutputDir(outputPath);
         outputDir = new File(outputDir.getAbsolutePath()+ File.separator + outputPrefix);
         outputDir.mkdirs();
         // Object to write results on file
         BufferedWriter bw;
-        bw = new BufferedWriter(new FileWriter(outputDir.getAbsolutePath()+ File.separator + statsType.getPath(), true));
+        bw = new BufferedWriter(new FileWriter(outputDir.getAbsolutePath()+ File.separator + path, true));
         bw.write(info);
         bw.close();
-    }    
-    
+    }
+
     /**
      * Selects the path to save output data.
      * @param outputPath Path to a directory to write the output data

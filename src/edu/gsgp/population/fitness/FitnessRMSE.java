@@ -6,6 +6,7 @@
 
 package edu.gsgp.population.fitness;
 
+import edu.gsgp.experiment.data.Instance;
 import edu.gsgp.utils.Utils.DatasetType;
 import edu.gsgp.experiment.data.ExperimentalData;
 
@@ -23,6 +24,7 @@ public class FitnessRMSE extends Fitness {
     private double[] rmseTrSumSquareErrorsSizes;
     private double[] rmseTsSumSquareErrorsSizes;
     private int numberOfObjectives = 0;
+    private boolean skipGroupChecking = false;
 
     public FitnessRMSE(int numNodes) {
         super(numNodes);
@@ -31,6 +33,11 @@ public class FitnessRMSE extends Fitness {
     public FitnessRMSE() {
         this(0);
 
+    }
+
+    public FitnessRMSE(boolean skipGroupChecking) {
+        this(0);
+        this.skipGroupChecking = skipGroupChecking;
     }
 
     public FitnessRMSE(double[] semanticsTr, double[] semanticsTs, double[] rmseTr, double[] rmseTs) {
@@ -74,18 +81,21 @@ public class FitnessRMSE extends Fitness {
             rmseTsSumSquareErrorsSizes[i] = 0;
         }
 
-        setSemantics(datasets.getDataset(dataType).size(), dataType);    }
-    
+        setSemantics(datasets.getDataset(dataType).size(), dataType);
+    }
+
     @Override
-    public void setSemanticsAtIndex(double estimated, double desired, int index, DatasetType dataType){
+    public void setSemanticsAtIndex(Instance instance, double estimated, double desired, int index, DatasetType dataType){
         getSemantics(dataType)[index] = estimated;
 
         double[] sumSquareErrors = getRmseSumSquareErrors(dataType);
         double[] sumSquareErrorsSize = getRmseTrSumSquareErrorsSizes(dataType);
 
         for (int i = 0; i < numberOfObjectives; i++) {
-            sumSquareErrors[i] += Math.pow(estimated - desired, 2);
-            sumSquareErrorsSize[i]++;
+            if (skipGroupChecking || instance.belongsToGroup(i)) {
+                sumSquareErrors[i] += Math.pow(estimated - desired, 2);
+                sumSquareErrorsSize[i]++;
+            }
         }
     }
 

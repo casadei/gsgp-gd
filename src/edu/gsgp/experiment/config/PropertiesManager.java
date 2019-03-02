@@ -5,10 +5,8 @@
  */
 package edu.gsgp.experiment.config;
 
-import edu.gsgp.experiment.data.ExperimentalData;
-import edu.gsgp.experiment.data.HoldoutHandler;
-import edu.gsgp.experiment.data.DataProducer;
-import edu.gsgp.experiment.data.CrossvalidationHandler;
+import edu.gsgp.experiment.data.*;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -105,6 +103,7 @@ public class PropertiesManager {
     private StringBuilder loadedParametersLog;
 
     private int numberOfObjectives;
+    private Classifier classifier;
 
     public PropertiesManager(String args[]) throws Exception{
         loadedParametersLog = new StringBuilder();
@@ -151,6 +150,7 @@ public class PropertiesManager {
         individualSelector = getIndividualSelector();
 
         numberOfObjectives = getIntegerProperty(ParameterList.DATA_CLASSIFIER_K, 0);
+        classifier = getClassifierObject();
     }
 
     public enum ParameterList {
@@ -643,7 +643,20 @@ public class PropertiesManager {
             throw new ClassNotFoundException("Error loading the fitness function. Class " + fitnessClassname + " not found", e);
         } 
     }
-    
+
+    private Classifier getClassifierObject() throws Exception {
+        String classifierClassName = "";
+        try {
+            classifierClassName = getStringProperty(ParameterList.DATA_CLASSIFIER, false).replaceAll("\\s", "");
+            Class<?> classifierClass = Class.forName(classifierClassName);
+            return (Classifier)classifierClass.newInstance();
+        }
+        catch (ClassNotFoundException e) {
+            throw new ClassNotFoundException("Error loading the classifier. Class " + classifierClassName + " not found", e);
+        }
+
+    }
+
     /**
      * Update the experimental data from the dataProducer
      */
@@ -859,4 +872,7 @@ public class PropertiesManager {
         return this.numberOfObjectives;
     }
 
+    public Classifier getClassifier() {
+        return classifier;
+    }
 }

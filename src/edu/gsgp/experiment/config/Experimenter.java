@@ -9,6 +9,8 @@ package edu.gsgp.experiment.config;
 import edu.gsgp.GSGP;
 import edu.gsgp.experiment.data.DataProducer;
 import edu.gsgp.experiment.data.DataWriter;
+import edu.gsgp.experiment.data.ExperimentalData;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,7 +40,13 @@ public class Experimenter {
                 // Run the algorithm for a defined number of repetitions
                 for(int execution = 0; execution < parameters.getNumExperiments(); execution++){
                     parameters.updateExperimentalData();
-                    experiments[execution] = new Experiment(new GSGP(parameters, parameters.getExperimentalData()), execution);
+                    ExperimentalData data = parameters.getExperimentalData().softClone();
+
+                    parameters.getClassifier().classify(parameters.getRandomGenerator(), data, parameters.getNumberOfObjectives());
+
+                    DataWriter.writeGroups(parameters, data,execution + 1);
+
+                    experiments[execution] = new Experiment(new GSGP(parameters, data), execution);
                     executor.execute(experiments[execution]);
                 }
                 executor.shutdown();

@@ -6,11 +6,17 @@
 
 package edu.gsgp.utils;
 
+import edu.gsgp.experiment.data.Dataset;
 import edu.gsgp.experiment.data.ExperimentalData;
+import edu.gsgp.experiment.data.Instance;
 import edu.gsgp.population.Individual;
 import edu.gsgp.population.Population;
-import edu.gsgp.population.Individual;
+import edu.gsgp.population.fitness.Fitness;
+import edu.gsgp.population.fitness.FitnessRMSE;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
@@ -22,11 +28,15 @@ public class Statistics {
     
     public enum StatsType{
         BEST_OF_GEN_SIZE("individualSize.csv"), 
-        SEMANTICS("outputs.csv"),
+        TRAINING_SEMANTICS("trOutputs.csv"),
+        TEST_SEMANTICS("tsOutputs.csv"),
         BEST_OF_GEN_TS_FIT("tsFitness.csv"), 
         BEST_OF_GEN_TR_FIT("trFitness.csv"),
         ELAPSED_TIME("elapsedTime.csv"),
-        LOADED_PARAMETERS("loadedParams.txt");
+        LOADED_PARAMETERS("loadedParams.txt"),
+        GROUPS("groups-%02d.txt"),
+        SMART_TEST_SEMANTICS("smart_test_outputs.csv"),
+        SMART_TEST_FITNESS("smart_test_fitness.csv");
 
         private final String filePath;
 
@@ -49,8 +59,12 @@ public class Statistics {
     protected float[] meanMDD;
     protected float[] sdMDD;
     
-    private String bestTrainingSemantics;
-    private String bestTestSemantics;
+    protected String bestTrainingSemantics;
+    protected String bestTestSemantics;
+
+    protected String smartTsSemantics;
+    protected String smartTsFitness;
+
         
     protected int currentGeneration;
     // ========================= ADDED FOR GECCO PAPER =========================
@@ -133,7 +147,7 @@ public class Statistics {
         elapsedTime += System.nanoTime() - methodTime;
     }
 
-    public void finishEvolution(Individual[] bestIndividuals) {
+    public void finishEvolution(int numberOfObjectives, Individual[] bestIndividuals) {
         elapsedTime = System.nanoTime() - elapsedTime;
         // Convert nanosecs to secs
         elapsedTime /= 1000000000;
@@ -148,6 +162,51 @@ public class Statistics {
 
         bestTrainingSemantics = String.join("|", trSemantics);
         bestTestSemantics = String.join("|", tsSemantics);
+
+        computeSmartFitness(numberOfObjectives, bestIndividuals);
+    }
+
+    private void computeSmartFitness(int numberOfObjectives, Individual[] bestIndividuals) {
+        Map<Integer, Individual> bestByObjective = new HashMap<>();
+
+        // Get best individual by objective
+        for (int i = 0; i < numberOfObjectives; i++) {
+            for (Individual individual : bestIndividuals) {
+                if (!bestByObjective.containsKey(i) ||
+                    bestByObjective.get(i).getTrainingFitness()[i] > individual.getTrainingFitness()[i]) {
+                    bestByObjective.put(i, individual);
+                }
+            }
+        }
+
+        Fitness function = new FitnessRMSE(true);
+        function.resetFitness(Utils.DatasetType.TEST, expData, 1);
+
+        int instanceIndex = 0;
+        for (Instance instance : expData.getDataset(Utils.DatasetType.TEST)) {
+            int bestGroup = 0;
+            Individual best = null;
+
+            // Get the individual with lower fitness among the objectives associated to this instance
+            for (int i = 0; i < numberOfObjectives; i++) {
+                if (!instance.belongsToGroup(i))
+                    continue;
+
+                if (best == null || best.getTrainingFitness()[bestGroup] > bestByObjective.get(i).getTrainingFitness()[i]) {
+                    bestGroup = i;
+                    best = bestByObjective.get(i);
+                }
+            }
+
+            double estimated = best.getTestSemantics()[instanceIndex];
+            function.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, Utils.DatasetType.TEST);
+        }
+
+        function.computeFitness(Utils.DatasetType.TEST);
+
+        smartTsFitness = Utils.format(function.getTestFitness()[0]);
+        smartTsSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TEST), ',');
+
     }
     
     public String asWritableString(StatsType type) {
@@ -156,12 +215,18 @@ public class Statistics {
                 return concatenateArray(bestOfGenSize);
             case BEST_OF_GEN_TR_FIT:
                 return concatenateArray(bestOfGenTrFitness);
-            case SEMANTICS:
+            case TRAINING_SEMANTICS:
                 return bestTrainingSemantics;
+            case TEST_SEMANTICS:
+                return bestTestSemantics;
             case BEST_OF_GEN_TS_FIT:
                 return concatenateArray(bestOfGenTsFitness);
             case ELAPSED_TIME:
                 return elapsedTime + "";
+            case SMART_TEST_FITNESS:
+                return smartTsFitness;
+            case SMART_TEST_SEMANTICS:
+                return smartTsSemantics;
             default:
                 return null;
         }

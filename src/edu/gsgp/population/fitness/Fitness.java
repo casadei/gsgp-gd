@@ -6,6 +6,7 @@
 
 package edu.gsgp.population.fitness;
 
+import edu.gsgp.experiment.data.Instance;
 import edu.gsgp.utils.Utils.DatasetType;
 import edu.gsgp.experiment.data.ExperimentalData;
 import java.math.BigInteger;
@@ -119,7 +120,7 @@ public abstract class Fitness{
      * @param datasets Training and test data in an ExperimentalData object
      */
     public abstract void resetFitness(DatasetType dataType, ExperimentalData datasets, int numberOfObjectives);
-    public abstract void setSemanticsAtIndex(double estimated, double desired, int index, DatasetType dataType);
+    public abstract void setSemanticsAtIndex(Instance instance, double estimated, double desired, int index, DatasetType dataType);
     public abstract void computeFitness(DatasetType dataType);
     
     public abstract Fitness softClone();

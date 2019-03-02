@@ -55,4 +55,8 @@ public class ExperimentalData {
                 break;
         }
     }
+
+    public ExperimentalData softClone() {
+        return new ExperimentalData(training.softClone(), test.softClone());
+    }
 }

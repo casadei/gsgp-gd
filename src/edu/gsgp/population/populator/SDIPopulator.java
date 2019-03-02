@@ -51,7 +51,7 @@ public class SDIPopulator extends Populator{
             int instanceIndex = 0;
             for (Instance instance : dataset) {
                 double estimated = newTree.eval(instance.input);
-                fitnessFunction.setSemanticsAtIndex(estimated, instance.output, instanceIndex++, dataType);
+                fitnessFunction.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, dataType);
             }
             fitnessFunction.computeFitness(dataType);
         }

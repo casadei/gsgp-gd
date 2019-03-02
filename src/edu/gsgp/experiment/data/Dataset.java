@@ -50,7 +50,11 @@ public class Dataset extends ArrayList<Instance>{
      */
     public Dataset softClone() {
         Dataset newDataset = new Dataset();
-        newDataset.addAll(this);
+
+        for (Instance instance : this) {
+            newDataset.add(instance.input, instance.output);
+        }
+
         return newDataset;
     }
     

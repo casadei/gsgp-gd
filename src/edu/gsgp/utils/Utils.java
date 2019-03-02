@@ -152,4 +152,9 @@ public class Utils {
     public static String format(double value){
         return df.format(value);
     }
+
+    public static int toPowerOfTwo(int value) {
+        return (int)Math.pow(2, value);
+    }
+
 }

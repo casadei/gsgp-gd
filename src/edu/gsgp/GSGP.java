@@ -61,7 +61,7 @@ public class GSGP {
             
             statistics.addGenerationStatistic(population);
         }
-        statistics.finishEvolution(population.getBestIndividuals());
+        statistics.finishEvolution(properties.getNumberOfObjectives(), population.getBestIndividuals());
     }
 
     public Statistics getStatistics() {

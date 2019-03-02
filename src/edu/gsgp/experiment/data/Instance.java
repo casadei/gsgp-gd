@@ -4,6 +4,8 @@
  */
 package edu.gsgp.experiment.data;
 
+import edu.gsgp.utils.Utils;
+
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
  * http://homepages.dcc.ufmg.br/~luizvbo/ 
@@ -22,6 +24,9 @@ public class Instance {
     /** Instance identifier. */
     public int id;
 
+    /** Instance groups control flags */
+    public int groups;
+
     /**
      * Constructor declaration
      * @param input Instance input 
@@ -32,6 +37,24 @@ public class Instance {
         this.input = input;
         this.output = output;
         id = IDCounter++;
+    }
+
+    public void addToGroup(int group) {
+        if (belongsToGroup(group))
+            return;
+
+        this.groups |= Utils.toPowerOfTwo(group);
+    }
+
+    public void removeFromGroup(int group) {
+        if (!belongsToGroup(group))
+            return;
+
+        this.groups ^= Utils.toPowerOfTwo(group);
+    }
+
+    public boolean belongsToGroup(int group) {
+        return (this.groups & Utils.toPowerOfTwo(group)) > 0;
     }
 
     @Override
