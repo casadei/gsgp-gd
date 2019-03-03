@@ -37,8 +37,10 @@ public class DataWriter {
                 StatsType.ELAPSED_TIME,
                 StatsType.SMART_TRAINING_FITNESS,
                 StatsType.SMART_TRAINING_SEMANTICS,
+                StatsType.SMART_TRAINING_SANITY,
                 StatsType.SMART_TEST_FITNESS,
-                StatsType.SMART_TEST_SEMANTICS
+                StatsType.SMART_TEST_SEMANTICS,
+                StatsType.SMART_TEST_SANITY
         };
 
         for (StatsType type : writeableStats){

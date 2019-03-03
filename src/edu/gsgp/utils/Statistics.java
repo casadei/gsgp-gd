@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class Statistics {
 
-    public static double VALIDATION_SAMPLE_PERCENTAGE = 0.10;
+    public static double VALIDATION_SAMPLE_PERCENTAGE = 0.20;
 
     public enum StatsType{
         BEST_OF_GEN_SIZE("individualSize.csv"), 
@@ -38,8 +38,10 @@ public class Statistics {
         GROUPS("groups-%02d.txt"),
         SMART_TRAINING_SEMANTICS("smart_training_outputs.csv"),
         SMART_TRAINING_FITNESS("smart_training_fitness.csv"),
+        SMART_TRAINING_SANITY("smart_training_sanity.csv"),
         SMART_TEST_SEMANTICS("smart_test_outputs.csv"),
-        SMART_TEST_FITNESS("smart_test_fitness.csv");
+        SMART_TEST_FITNESS("smart_test_fitness.csv"),
+        SMART_TEST_SANITY("smart_test_santity.csv");
 
         private final String filePath;
 
@@ -67,11 +69,12 @@ public class Statistics {
 
     protected String smartTrSemantics;
     protected String smartTrFitness;
+    protected String smartTrSanity;
 
     protected String smartTsSemantics;
     protected String smartTsFitness;
+    protected String smartTsSanity;
 
-        
     protected int currentGeneration;
     // ========================= ADDED FOR GECCO PAPER =========================
 //    private ArrayList<int[]> trGeTarget;
@@ -218,6 +221,35 @@ public class Statistics {
         return validationFitness;
     }
 
+    private String computeSanity(Utils.DatasetType type, Individual[] bestIndividuals) {
+        String[] sanity = new String[bestIndividuals.length];
+
+        for (int i = 0; i < bestIndividuals.length; i++) {
+            Individual individual = bestIndividuals[i];
+
+            Fitness function = new FitnessRMSE(true);
+            function.resetFitness(type, expData, 1);
+            int instanceIndex = 0;
+
+            for (Instance instance : expData.getDataset(type)) {
+                double estimated = type == Utils.DatasetType.TRAINING
+                        ? individual.getTrainingSemantics()[instanceIndex]
+                        : individual.getTestSemantics()[instanceIndex];
+
+                function.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, type);
+            }
+
+            function.computeFitness(type);
+
+            if (type == Utils.DatasetType.TRAINING)
+                sanity[i] = Utils.format( function.getTrainingFitness()[0]);
+            else
+                sanity[i] = Utils.format(function.getTestFitness()[0]);
+        }
+
+        return StringUtils.join(sanity, ',');
+    }
+
     private void computeSmartTrainingFitness(int numberOfObjectives, Individual[] bestIndividuals) {
         Map<Integer, Individual> bestByObjective = new HashMap<>();
 
@@ -261,6 +293,7 @@ public class Statistics {
 
         smartTrFitness = Utils.format(function.getTrainingFitness()[0]);
         smartTrSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TRAINING), ',');
+        smartTrSanity = computeSanity(Utils.DatasetType.TRAINING, bestIndividuals);
     }
 
     private void computeSmartTestFitness(int numberOfObjectives, Individual[] bestIndividuals) {
@@ -308,6 +341,7 @@ public class Statistics {
 
         smartTsFitness = Utils.format(function.getTestFitness()[0]);
         smartTsSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TEST), ',');
+        smartTsSanity = computeSanity(Utils.DatasetType.TEST, bestIndividuals);
     }
     
     public String asWritableString(StatsType type) {
@@ -328,10 +362,14 @@ public class Statistics {
                 return smartTrFitness;
             case SMART_TRAINING_SEMANTICS:
                 return smartTrSemantics;
+            case SMART_TRAINING_SANITY:
+                return smartTrSanity;
             case SMART_TEST_FITNESS:
                 return smartTsFitness;
             case SMART_TEST_SEMANTICS:
                 return smartTsSemantics;
+            case SMART_TEST_SANITY:
+                return smartTsSanity;
             default:
                 return null;
         }
