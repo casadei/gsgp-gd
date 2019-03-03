@@ -27,11 +27,11 @@ public class GSGP {
     private final ExperimentalData expData;
     private final MersenneTwister rndGenerator;
 
-    public GSGP(PropertiesManager properties, ExperimentalData expData) throws Exception{
+    public GSGP(PropertiesManager properties, ExperimentalData expData, MersenneTwister randomGenerator) throws Exception{
         this.properties = properties;
         this.expData = expData;
         statistics = new Statistics(properties.getNumGenerations(), expData);
-        rndGenerator = properties.getRandomGenerator();
+        rndGenerator = randomGenerator;
     }
     
     public void evolve() throws Exception {

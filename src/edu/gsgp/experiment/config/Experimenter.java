@@ -10,6 +10,7 @@ import edu.gsgp.GSGP;
 import edu.gsgp.experiment.data.DataProducer;
 import edu.gsgp.experiment.data.DataWriter;
 import edu.gsgp.experiment.data.ExperimentalData;
+import edu.gsgp.utils.MersenneTwister;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -42,11 +43,13 @@ public class Experimenter {
                     parameters.updateExperimentalData();
                     ExperimentalData data = parameters.getExperimentalData().softClone();
 
-                    parameters.getClassifier().classify(parameters.getRandomGenerator(), data, parameters.getNumberOfObjectives());
+                    MersenneTwister randomGenerator = parameters.getRandomGenerator();
+
+                    parameters.getClassifier().classify(randomGenerator, data, parameters.getNumberOfObjectives());
 
                     DataWriter.writeGroups(parameters, data,execution + 1);
 
-                    experiments[execution] = new Experiment(new GSGP(parameters, data), execution);
+                    experiments[execution] = new Experiment(new GSGP(parameters, data, randomGenerator), execution);
                     executor.execute(experiments[execution]);
                 }
                 executor.shutdown();

@@ -157,8 +157,8 @@ public class Population extends ArrayList<Individual> {
     public Individual[] getBestIndividuals(){
         nondominatedSort();
 
-        Collections.sort(fronts.get(0), (i1, i2) -> {
-            if (i1.dominanceRank <= i2.dominanceRank)
+        Collections.sort(this, (i1, i2) -> {
+            if (i1.dominanceRank < i2.dominanceRank)
                 return -1;
             if (i1.dominanceRank > i2.dominanceRank)
                 return 1;
