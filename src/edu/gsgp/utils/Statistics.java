@@ -36,12 +36,12 @@ public class Statistics {
         ELAPSED_TIME("elapsedTime.csv"),
         LOADED_PARAMETERS("loadedParams.txt"),
         GROUPS("groups-%02d.txt"),
-        SMART_TRAINING_SEMANTICS("smart_training_outputs.csv"),
-        SMART_TRAINING_FITNESS("smart_training_fitness.csv"),
-        SMART_TRAINING_SANITY("smart_training_sanity.csv"),
-        SMART_TEST_SEMANTICS("smart_test_outputs.csv"),
-        SMART_TEST_FITNESS("smart_test_fitness.csv"),
-        SMART_TEST_SANITY("smart_test_santity.csv");
+        SMART_TRAINING_SEMANTICS("smart_tr_outputs.csv"),
+        SMART_TRAINING_FITNESS("smart_tr_fitness.csv"),
+        SMART_TRAINING_SANITY("smart_tr_sanity.csv"),
+        SMART_TEST_SEMANTICS("smart_ts_outputs.csv"),
+        SMART_TEST_FITNESS("smart_ts_fitness.csv"),
+        SMART_TEST_SANITY("smart_ts_santity.csv");
 
         private final String filePath;
 
@@ -204,14 +204,18 @@ public class Statistics {
         int instanceIndex = 0;
         for (int index : getSampleIndexes()) {
             Instance instance = expData.getDataset(Utils.DatasetType.TEST).get(index);
+
             for (Individual individual : bestIndividuals) {
                 validationFitness.get(individual).setSemanticsAtIndex(
                         instance,
                         individual.getTestSemantics()[index],
-                        instance.output, instanceIndex++,
+                        instance.output,
+                        instanceIndex,
                         Utils.DatasetType.TEST
                 );
             }
+
+            instanceIndex++;
         }
 
         for (FitnessRMSE current : validationFitness.values()) {
