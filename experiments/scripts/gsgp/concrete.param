@@ -1,4 +1,3 @@
 parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
 experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/concrete-#.dat
-experiment.file.prefix = concrete
-
+experiment.file.prefix = output-concrete

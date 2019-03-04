@@ -1,3 +1,3 @@
 parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
 experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/vladislavleva-1-#.dat
-experiment.file.prefix = vladislavleva-1
+experiment.file.prefix = output-vladislavleva-1

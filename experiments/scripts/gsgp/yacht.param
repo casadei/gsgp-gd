@@ -1,4 +1,3 @@
 parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
 experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/yacht-#.dat
-experiment.file.prefix = yacht
-
+experiment.file.prefix = output-yacht

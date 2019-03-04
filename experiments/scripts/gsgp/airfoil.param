@@ -1,4 +1,4 @@
 parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
 experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/airfoil-#.dat
-experiment.file.prefix = airfoil
+experiment.file.prefix = output-airfoil
 

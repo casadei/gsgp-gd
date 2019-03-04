@@ -6,6 +6,7 @@
 
 package edu.gsgp.utils;
 
+import edu.gsgp.experiment.config.PropertiesManager;
 import edu.gsgp.experiment.data.Dataset;
 import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.experiment.data.Instance;
@@ -25,8 +26,6 @@ import java.util.*;
  */
 public class Statistics {
 
-    public static double VALIDATION_SAMPLE_PERCENTAGE = 0.20;
-
     public enum StatsType{
         BEST_OF_GEN_SIZE("individualSize.csv"), 
         TRAINING_SEMANTICS("trOutputs.csv"),
@@ -37,9 +36,11 @@ public class Statistics {
         LOADED_PARAMETERS("loadedParams.txt"),
         GROUPS("groups-%02d.txt"),
         SMART_TRAINING_SEMANTICS("smart_tr_outputs.csv"),
+        SMART_TRAINING_FEEDBACK("smart_tr_feedback.csv"),
         SMART_TRAINING_FITNESS("smart_tr_fitness.csv"),
         SMART_TRAINING_SANITY("smart_tr_sanity.csv"),
         SMART_TEST_SEMANTICS("smart_ts_outputs.csv"),
+        SMART_TEST_FEEDBACK("smart_ts_feedback.csv"),
         SMART_TEST_FITNESS("smart_ts_fitness.csv"),
         SMART_TEST_SANITY("smart_ts_santity.csv");
 
@@ -53,6 +54,8 @@ public class Statistics {
             return filePath;
         }
     }
+
+    protected PropertiesManager properties;
     
     protected ExperimentalData expData;
     
@@ -69,10 +72,12 @@ public class Statistics {
 
     protected String smartTrSemantics;
     protected String smartTrFitness;
+    protected String smartTrFeedback;
     protected String smartTrSanity;
 
     protected String smartTsSemantics;
     protected String smartTsFitness;
+    protected String smartTsFeedback;
     protected String smartTsSanity;
 
     protected int currentGeneration;
@@ -81,7 +86,11 @@ public class Statistics {
 //    private ArrayList<int[]> tsGeTarget;
     // =========================================================================
     
-    public Statistics(int numGenerations, ExperimentalData expData) {
+    public Statistics(PropertiesManager properties, ExperimentalData expData) {
+        this.properties = properties;
+
+        int numGenerations = properties.getNumGenerations();
+
         bestOfGenSize = new String[numGenerations+1];
         bestOfGenTsFitness = new String[numGenerations+1];
         bestOfGenTrFitness = new String[numGenerations+1];
@@ -89,40 +98,8 @@ public class Statistics {
         sdMDD = new float[numGenerations+1];
         currentGeneration = 0;
         this.expData = expData;
-        
-        // ======================= ADDED FOR GECCO PAPER =======================
-//        trGeTarget = new ArrayList<>();
-//        tsGeTarget = new ArrayList<>();
-        // =====================================================================
     }
-    
-    // ========================= ADDED FOR GECCO PAPER =========================
-//    public void storeDristInfo(Population pop){
-//        
-//        if(currentGeneration > 0 && (currentGeneration-1) % 10 == 0){
-//        
-//            int[] tsGE = new int[expData.getDataset(Utils.DatasetType.TEST).size()];
-//            int[] trGE = new int[expData.getDataset(Utils.DatasetType.TRAINING).size()];
-//            for(Individual ind : pop){
-//                double[] tsSem = ind.getTestSemantics();
-//                double[] trSem = ind.getTrainingSemantics();
-//                for(int i = 0; i < tsSem.length; i++){
-//                    if(tsSem[i] >= expData.getDataset(Utils.DatasetType.TEST).getOutputs()[i])
-//                        tsGE[i]++;
-//                }
-//                for(int i = 0; i < trSem.length; i++){
-//                    if(trSem[i] >= expData.getDataset(Utils.DatasetType.TRAINING).getOutputs()[i])
-//                        trGE[i]++;
-//                }
-//            }
-//
-//            tsGeTarget.add(tsGE);
-//            trGeTarget.add(trGE);
-//            
-//        }
-//    }
-    // =========================================================================
-    
+
     /**
      * Update the statistics with information obtained in the end of the generation
      * @param pop Current population
@@ -187,7 +164,7 @@ public class Statistics {
 
         Collections.shuffle(available);
 
-        return available.subList(0, (int)(Math.floor(testSize) * VALIDATION_SAMPLE_PERCENTAGE));
+        return available.subList(0, (int)(Math.floor(testSize) * properties.getValidationSampleSize() ));
     }
 
     private Map<Individual, FitnessRMSE> computeValidationFitness(int numberOfObjectives, Individual[] bestIndividuals) {
@@ -198,7 +175,6 @@ public class Statistics {
             fitness.resetFitness(Utils.DatasetType.TEST, expData, numberOfObjectives);
 
             validationFitness.put(individual, fitness);
-
         }
 
         int instanceIndex = 0;
@@ -271,6 +247,8 @@ public class Statistics {
         Fitness function = new FitnessRMSE(true);
         function.resetFitness(Utils.DatasetType.TRAINING, expData, 1);
 
+        int[] feedback = new int[expData.getDataset(Utils.DatasetType.TRAINING).size()];
+
         int instanceIndex = 0;
         for (Instance instance : expData.getDataset(Utils.DatasetType.TRAINING)) {
             int bestGroup = 0;
@@ -290,13 +268,16 @@ public class Statistics {
             }
 
             double estimated = best.getTrainingSemantics()[instanceIndex];
-            function.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, Utils.DatasetType.TRAINING);
+            function.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex, Utils.DatasetType.TRAINING);
+            feedback[instanceIndex] = bestGroup;
+            instanceIndex++;
         }
 
         function.computeFitness(Utils.DatasetType.TRAINING);
 
         smartTrFitness = Utils.format(function.getTrainingFitness()[0]);
         smartTrSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TRAINING), ',');
+        smartTrFeedback = StringUtils.join(feedback, ',');
         smartTrSanity = computeSanity(Utils.DatasetType.TRAINING, bestIndividuals);
     }
 
@@ -319,6 +300,8 @@ public class Statistics {
         Fitness function = new FitnessRMSE(true);
         function.resetFitness(Utils.DatasetType.TEST, expData, 1);
 
+        int[] feedback = new int[expData.getDataset(Utils.DatasetType.TEST).size()];
+
         int instanceIndex = 0;
         for (Instance instance : expData.getDataset(Utils.DatasetType.TEST)) {
             int bestGroup = 0;
@@ -338,13 +321,16 @@ public class Statistics {
             }
 
             double estimated = best.getTestSemantics()[instanceIndex];
-            function.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, Utils.DatasetType.TEST);
+            function.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex, Utils.DatasetType.TEST);
+            feedback[instanceIndex] = bestGroup;
+            instanceIndex++;
         }
 
         function.computeFitness(Utils.DatasetType.TEST);
 
         smartTsFitness = Utils.format(function.getTestFitness()[0]);
         smartTsSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TEST), ',');
+        smartTsFeedback = StringUtils.join(feedback, ',');
         smartTsSanity = computeSanity(Utils.DatasetType.TEST, bestIndividuals);
     }
     
@@ -366,12 +352,16 @@ public class Statistics {
                 return smartTrFitness;
             case SMART_TRAINING_SEMANTICS:
                 return smartTrSemantics;
+            case SMART_TRAINING_FEEDBACK:
+                return smartTrFeedback;
             case SMART_TRAINING_SANITY:
                 return smartTrSanity;
             case SMART_TEST_FITNESS:
                 return smartTsFitness;
             case SMART_TEST_SEMANTICS:
                 return smartTsSemantics;
+            case SMART_TEST_FEEDBACK:
+                return smartTsFeedback;
             case SMART_TEST_SANITY:
                 return smartTsSanity;
             default:

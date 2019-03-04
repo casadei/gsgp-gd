@@ -105,6 +105,11 @@ public class PropertiesManager {
     private int numberOfObjectives;
     private Classifier classifier;
 
+    private long seed;
+    private double validationSampleSize;
+    private String pathToPython;
+    private String pathToScripts;
+
     public PropertiesManager(String args[]) throws Exception{
         loadedParametersLog = new StringBuilder();
         
@@ -116,7 +121,8 @@ public class PropertiesManager {
     
     private void loadParameters() throws Exception{
         dataProducer = getDataProducer();
-        mersennePRNG = new MersenneTwister(getLongProperty(ParameterList.SEED, System.currentTimeMillis()));
+        seed = getLongProperty(ParameterList.SEED, System.currentTimeMillis());
+        mersennePRNG = new MersenneTwister(seed);
         terminalSet = getTerminalObjects();
         functionSet = getFunctionObjects();
         fitnessFunction = getFitnessObject();
@@ -151,6 +157,10 @@ public class PropertiesManager {
 
         numberOfObjectives = getIntegerProperty(ParameterList.DATA_CLASSIFIER_K, 0);
         classifier = getClassifierObject();
+
+        validationSampleSize = getDoubleProperty(ParameterList.VALIDATION_SAMPLE_SIZE, 0.0);
+        pathToPython = getStringProperty(ParameterList.PATH_PYTHON, false);
+        pathToScripts = getStringProperty(ParameterList.PATH_SCRIPTS, false);
     }
 
     public enum ParameterList {
@@ -205,7 +215,11 @@ public class PropertiesManager {
         SPREADER_PROB("breed.spread.prob", "Probability of applying the spreader operator (in standalone mode)", false),
         SPREADER_ALPHA("breed.spread.alpha", "Alpha used to compute the effective probability of applying the spreader", false),
         DATA_CLASSIFIER("data.classifier", "Class responsible for doing data classification of each instance of the data sets", true),
-        DATA_CLASSIFIER_K("data.classifier.k", "Number of K available classes used in the data classification.", false);
+        DATA_CLASSIFIER_K("data.classifier.k", "Number of K available classes used in the data classification.", false),
+
+        VALIDATION_SAMPLE_SIZE("validation.sample.size", "Relative (%) size of the sample of test samples used in the smart fitness validation", false),
+        PATH_PYTHON("path.python", "Path to python bin", false),
+        PATH_SCRIPTS("path.scripts", "Path to python scripts", false);
 
         public final String name;
         public final String description;
@@ -875,4 +889,12 @@ public class PropertiesManager {
     public Classifier getClassifier() {
         return classifier;
     }
+
+    public long getSeed() { return seed; }
+
+    public double getValidationSampleSize() { return validationSampleSize; }
+
+    public String getPathToPython() { return pathToPython; }
+
+    public String getPathToScripts() { return pathToScripts; }
 }

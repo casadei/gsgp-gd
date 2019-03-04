@@ -14,7 +14,7 @@ tree.build.builder.random.tree = GROW
 pop.ind.selector = CROWDING_DISTANCE
 # Type of experiment (cross-validation or holdout):
 # - If crossvalidation, uses splited data from a list of files. Use paths to the
-# files in the form /pathToFile/repeatedName#repeatedName, where # indicates 
+# files in the form /pathToFile/repeatedName#repeatedName, where # indicates
 # where the fold index is placed (a number from 0 to k-1). E.g. /home/iris-#.dat,
 # with 3 folds in the path will look for iris-0.dat, iris-1.dat and iris-2.dat
 # - If holdout, Use paths to the files in the form /pathToFile/repeatedName#repeatedName,
@@ -33,7 +33,7 @@ evol.num.generation = 250
 # Tournament size, when using tournament as selector
 pop.ind.selector.tourn.size = 10
 # Number of experiment repetitions (per fold) - default = 1
-experiment.num.repetition = 1
+experiment.num.repetition = 50
 # Class responsible for evolve a new population from a previous one
 pop.pipeline = edu.gsgp.population.pipeline.StandardPipe
 # Number of threads (for parallel execution)
@@ -46,7 +46,7 @@ pop.fitness = edu.gsgp.population.fitness.FitnessRMSE
 pop.initializer = edu.gsgp.population.populator.SimplePopulator
 pop.initializer.attempts = 10
 # List of breeders classes used during the evolution. The list items must be comma separated and the propability
-# must follow the breeder class separated by a *. E.g.: 
+# must follow the breeder class separated by a *. E.g.:
 # edu.gsgp.population.builder.individual.BreederA*0.1, edu.gsgp.population.builder.individual.BreederB*0.9
 breed.list = edu.gsgp.population.operator.GSMBreeder*0.5, edu.gsgp.population.operator.GSXMBreeder*0.5
 #, edu.gsgp.population.builder.individual.GLBreeder*0.05
@@ -57,3 +57,6 @@ breed.list = edu.gsgp.population.operator.GSMBreeder*0.5, edu.gsgp.population.op
 # Number of objectives
 data.classifier.k = 1
 data.classifier = edu.gsgp.experiment.data.classifiers.Void
+validation.sample.size = 0.2
+path.python = /Users/casadei/anaconda3/bin/python
+path.scripts = /Users/casadei/dev/casadei/gsgp-mo/scripts/

@@ -45,7 +45,12 @@ public class Experimenter {
 
                     MersenneTwister randomGenerator = parameters.getRandomGenerator();
 
-                    parameters.getClassifier().classify(randomGenerator, data, parameters.getNumberOfObjectives());
+                    parameters.getClassifier().classify(
+                            parameters,
+                            randomGenerator,
+                            data,
+                            parameters.getNumberOfObjectives()
+                    );
 
                     DataWriter.writeGroups(parameters, data,execution + 1);
 

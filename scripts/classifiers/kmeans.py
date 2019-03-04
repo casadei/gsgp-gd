@@ -15,3 +15,5 @@ for i, cluster in enumerate(predict(training)):
 
 for i, cluster in enumerate(predict(testing)):
   print("TEST,%d,%d" % (i, cluster))
+
+print("<<EOF")

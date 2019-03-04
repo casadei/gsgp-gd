@@ -1,4 +1,3 @@
 parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
 experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/ppb-#.dat
-experiment.file.prefix = ppb
-
+experiment.file.prefix = output-ppb
