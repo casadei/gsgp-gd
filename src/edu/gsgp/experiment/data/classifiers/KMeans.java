@@ -47,7 +47,13 @@ public class KMeans extends Classifier {
 
             write(training, test, writer);
 
+
+
             while (true) {
+                while (!scanner.hasNext()) {
+                    process.wait(1000);
+                }
+
                 String line = scanner.nextLine();
                 if (line.startsWith("<<EOF"))
                     break;
