@@ -44,20 +44,22 @@ public class ProtectedKMeans extends Classifier {
 
             write(training, test, writer);
 
-            while (true) {
+            boolean stop = false;
+            while (!stop) {
                 while (!scanner.hasNext()) {
-                    process.wait(1000);
+                    process.wait(1500);
                 }
 
                 String line = scanner.nextLine();
-                if (line.startsWith("<<EOF"))
-                    break;
+                if (line.startsWith("<<EOF")) {
+                    stop = true;
+                }  else {
+                    String[] parts = line.split(",");
+                    Dataset target = parts[0].equals("TRAINING") ? training : test;
 
-                String[] parts = line.split(",");
-                Dataset target = parts[0].equals("TRAINING") ? training : test;
-
-                target.get(Integer.parseInt(parts[1])).addToGroup(0);
-                target.get(Integer.parseInt(parts[1])).addToGroup(Integer.parseInt(parts[2] + 1));
+                    target.get(Integer.parseInt(parts[1])).addToGroup(0);
+                    target.get(Integer.parseInt(parts[1])).addToGroup(Integer.parseInt(parts[2] + 1));
+                }
             }
         } catch (Exception ex) {
             System.out.println("Error " + ex.getMessage());
