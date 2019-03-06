@@ -153,8 +153,8 @@ public class Statistics {
         computeSmartTestFitness(numberOfObjectives, bestIndividuals);
     }
 
-    private List<Integer> getSampleIndexes() {
-        int testSize = expData.getDataset(Utils.DatasetType.TEST).size();
+    private List<Integer> getSampleIndexes(Utils.DatasetType type, int sampleSize ) {
+        int testSize = expData.getDataset(type).size();
 
         List<Integer> available = new ArrayList<>(testSize);
 
@@ -164,30 +164,62 @@ public class Statistics {
 
         Collections.shuffle(available);
 
-        return available.subList(0, (int)(Math.floor(testSize) * properties.getValidationSampleSize() ));
+        return available.subList(0, sampleSize);
     }
 
     private Map<Individual, FitnessRMSE> computeValidationFitness(int numberOfObjectives, Individual[] bestIndividuals) {
         Map<Individual, FitnessRMSE> validationFitness = new HashMap<>();
 
+        int trainingSize = expData.getDataset(Utils.DatasetType.TRAINING).size();
+        int testSize = expData.getDataset(Utils.DatasetType.TEST).size();
+
+
+        /*
+            If the training size is greater or equal to test size, should use the training dataset to do the validation,
+            otherwise should use the test size using a sample not greater than training size
+
+         */
+
+        Utils.DatasetType type;
+        int sampleSize;
+        if (trainingSize >= testSize) {
+            type = Utils.DatasetType.TRAINING;
+            sampleSize = (int)(Math.floor(trainingSize) * properties.getValidationSampleSize());
+
+        } else {
+            type = Utils.DatasetType.TEST;
+            sampleSize = (int)(Math.floor(testSize) * properties.getValidationSampleSize());
+
+            if (testSize > trainingSize)
+                sampleSize = Math.min(trainingSize, sampleSize);
+        }
+
+        System.out.println(type.toString());
+        System.out.println(sampleSize);
+
         for (Individual individual : bestIndividuals) {
             FitnessRMSE fitness = new FitnessRMSE();
-            fitness.resetFitness(Utils.DatasetType.TEST, expData, numberOfObjectives);
+            fitness.resetFitness(type, expData, numberOfObjectives);
 
             validationFitness.put(individual, fitness);
         }
 
         int instanceIndex = 0;
-        for (int index : getSampleIndexes()) {
-            Instance instance = expData.getDataset(Utils.DatasetType.TEST).get(index);
+
+        for (int index : getSampleIndexes(type, sampleSize)) {
+            Instance instance = expData.getDataset(type).get(index);
 
             for (Individual individual : bestIndividuals) {
+                double[] semantics = type == Utils.DatasetType.TRAINING
+                        ? individual.getTrainingSemantics()
+                        : individual.getTestSemantics();
+
                 validationFitness.get(individual).setSemanticsAtIndex(
-                        instance,
-                        individual.getTestSemantics()[index],
-                        instance.output,
-                        instanceIndex,
-                        Utils.DatasetType.TEST
+                    instance,
+                    semantics[index],
+                    instance.output,
+                    instanceIndex,
+                    type
                 );
             }
 
