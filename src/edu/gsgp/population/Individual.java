@@ -121,11 +121,21 @@ public class Individual {
     public double[] getFitness() {
         return fitnessFunction.getComparableValue();
     }
+
+    public double[] getFitness(Utils.DatasetType datasetType) {
+        return fitnessFunction.getFitness(datasetType);
+    }
     
     public BigInteger getNumNodes() {
         return fitnessFunction.getNumNodes();
     }
-    
+
+    public double[] getSemantics(Utils.DatasetType datasetType) {
+        return datasetType == Utils.DatasetType.TRAINING
+                ? getTrainingSemantics()
+                : getTestSemantics();
+    }
+
     public double[] getTrainingSemantics() {
         return fitnessFunction.getSemantics(Utils.DatasetType.TRAINING);
     }

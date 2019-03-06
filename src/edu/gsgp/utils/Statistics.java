@@ -167,56 +167,33 @@ public class Statistics {
         return available.subList(0, sampleSize);
     }
 
-    private Map<Individual, FitnessRMSE> computeValidationFitness(int numberOfObjectives, Individual[] bestIndividuals) {
+    private Map<Individual, FitnessRMSE> computeValidationFitness(
+            Utils.DatasetType datasetType,
+            int sampleSize,
+            int numberOfObjectives,
+            Individual[] bestIndividuals)
+    {
         Map<Individual, FitnessRMSE> validationFitness = new HashMap<>();
 
-        int trainingSize = expData.getDataset(Utils.DatasetType.TRAINING).size();
-        int testSize = expData.getDataset(Utils.DatasetType.TEST).size();
-
-
-        /*
-            If the training size is greater or equal to test size, should use the training dataset to do the validation,
-            otherwise should use the test size using a sample not greater than training size
-
-         */
-
-        Utils.DatasetType type;
-        int sampleSize;
-        if (trainingSize >= testSize) {
-            type = Utils.DatasetType.TRAINING;
-            sampleSize = (int)(Math.floor(trainingSize) * properties.getValidationSampleSize());
-
-        } else {
-            type = Utils.DatasetType.TEST;
-            sampleSize = (int)(Math.floor(testSize) * properties.getValidationSampleSize());
-
-            if (testSize > trainingSize)
-                sampleSize = Math.min(trainingSize, sampleSize);
-        }
-        
         for (Individual individual : bestIndividuals) {
             FitnessRMSE fitness = new FitnessRMSE();
-            fitness.resetFitness(type, expData, numberOfObjectives);
+            fitness.resetFitness(datasetType, expData, numberOfObjectives);
 
             validationFitness.put(individual, fitness);
         }
 
         int instanceIndex = 0;
 
-        for (int index : getSampleIndexes(type, sampleSize)) {
-            Instance instance = expData.getDataset(type).get(index);
+        for (int index : getSampleIndexes(datasetType, sampleSize)) {
+            Instance instance = expData.getDataset(datasetType).get(index);
 
             for (Individual individual : bestIndividuals) {
-                double[] semantics = type == Utils.DatasetType.TRAINING
-                        ? individual.getTrainingSemantics()
-                        : individual.getTestSemantics();
-
                 validationFitness.get(individual).setSemanticsAtIndex(
                     instance,
-                    semantics[index],
+                    individual.getSemantics(datasetType)[index],
                     instance.output,
                     instanceIndex,
-                    type
+                    datasetType
                 );
             }
 
@@ -224,7 +201,7 @@ public class Statistics {
         }
 
         for (FitnessRMSE current : validationFitness.values()) {
-            current.computeFitness(Utils.DatasetType.TEST);
+            current.computeFitness(datasetType);
         }
 
         return validationFitness;
@@ -313,13 +290,45 @@ public class Statistics {
     private void computeSmartTestFitness(int numberOfObjectives, Individual[] bestIndividuals) {
         Map<Integer, Individual> bestByObjective = new HashMap<>();
 
-        Map<Individual, FitnessRMSE> validationFitness = computeValidationFitness(numberOfObjectives, bestIndividuals);
+        int trainingSize = expData.getDataset(Utils.DatasetType.TRAINING).size();
+        int testSize = expData.getDataset(Utils.DatasetType.TEST).size();
+        int sampleSize;
+        Utils.DatasetType validationDataset;
+
+        /*
+            If the training size is greater or equal to test size, should use the training dataset to do the validation,
+            otherwise should use the test size using a sample not greater than training size
+
+         */
+
+        if (trainingSize >= testSize) {
+            validationDataset = Utils.DatasetType.TRAINING;
+            sampleSize = (int)(Math.floor(trainingSize) * properties.getValidationSampleSize());
+
+        } else {
+            validationDataset = Utils.DatasetType.TEST;
+            sampleSize = (int)(Math.floor(testSize) * properties.getValidationSampleSize());
+
+            if (testSize > trainingSize)
+                sampleSize = Math.min(trainingSize, sampleSize);
+        }
+
+
+        Map<Individual, FitnessRMSE> validationFitness = computeValidationFitness(
+                validationDataset,
+                sampleSize,
+                numberOfObjectives,
+                bestIndividuals
+        );
 
         // Get best individual by objective according to the validation fitness results
         for (int i = 0; i < numberOfObjectives; i++) {
             for (Individual individual : bestIndividuals) {
+                Fitness validationOfBest = validationFitness.get(bestByObjective.get(i));
+                Fitness validationOfCurrent = validationFitness.get(individual);
+
                 if (!bestByObjective.containsKey(i) ||
-                    validationFitness.get(bestByObjective.get(i)).getTestFitness()[i] > validationFitness.get(individual).getTestFitness()[i])
+                    validationOfBest.getFitness(validationDataset)[i] > validationOfCurrent.getFitness(validationDataset)[i])
                 {
                     bestByObjective.put(i, individual);
                 }

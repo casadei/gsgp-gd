@@ -7,6 +7,7 @@
 package edu.gsgp.population.fitness;
 
 import edu.gsgp.experiment.data.Instance;
+import edu.gsgp.utils.Utils;
 import edu.gsgp.utils.Utils.DatasetType;
 import edu.gsgp.experiment.data.ExperimentalData;
 
@@ -135,6 +136,13 @@ public class FitnessRMSE extends Fitness {
     @Override
     public double[] getTestFitness(){
         return rmseTs;
+    }
+
+    @Override
+    public double[] getFitness(DatasetType datasetType) {
+        return datasetType == Utils.DatasetType.TRAINING
+                ? this.getTrainingFitness()
+                : this.getTestFitness();
     }
     
     @Override
