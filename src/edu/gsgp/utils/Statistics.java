@@ -193,10 +193,7 @@ public class Statistics {
             if (testSize > trainingSize)
                 sampleSize = Math.min(trainingSize, sampleSize);
         }
-
-        System.out.println(type.toString());
-        System.out.println(sampleSize);
-
+        
         for (Individual individual : bestIndividuals) {
             FitnessRMSE fitness = new FitnessRMSE();
             fitness.resetFitness(type, expData, numberOfObjectives);
