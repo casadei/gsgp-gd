@@ -58,7 +58,7 @@ public class ProtectedKMeans extends Classifier {
                     Dataset target = parts[0].equals("TRAINING") ? training : test;
 
                     target.get(Integer.parseInt(parts[1])).addToGroup(0);
-                    target.get(Integer.parseInt(parts[1])).addToGroup(Integer.parseInt(parts[2] + 1));
+                    target.get(Integer.parseInt(parts[1])).addToGroup(Integer.parseInt(parts[2]) + 1);
                 }
             }
         } catch (Exception ex) {

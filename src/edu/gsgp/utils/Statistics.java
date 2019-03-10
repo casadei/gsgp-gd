@@ -324,11 +324,9 @@ public class Statistics {
         // Get best individual by objective according to the validation fitness results
         for (int i = 0; i < numberOfObjectives; i++) {
             for (Individual individual : bestIndividuals) {
-                Fitness validationOfBest = validationFitness.get(bestByObjective.get(i));
-                Fitness validationOfCurrent = validationFitness.get(individual);
-
                 if (!bestByObjective.containsKey(i) ||
-                    validationOfBest.getFitness(validationDataset)[i] > validationOfCurrent.getFitness(validationDataset)[i])
+                    validationFitness.get(bestByObjective.get(i)).getFitness(validationDataset)[i] >
+                    validationFitness.get(individual).getFitness(validationDataset)[i])
                 {
                     bestByObjective.put(i, individual);
                 }
@@ -351,7 +349,8 @@ public class Statistics {
                     continue;
 
                 if (best == null ||
-                    validationFitness.get(best).getTestFitness()[bestGroup] > validationFitness.get(bestByObjective.get(i)).getTestFitness()[i])
+                    validationFitness.get(best).getFitness(validationDataset)[bestGroup] >
+                    validationFitness.get(bestByObjective.get(i)).getFitness(validationDataset)[i])
                 {
                     bestGroup = i;
                     best = bestByObjective.get(i);
