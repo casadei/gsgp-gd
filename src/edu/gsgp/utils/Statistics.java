@@ -42,7 +42,7 @@ public class Statistics {
         SMART_TEST_SEMANTICS("smart_ts_outputs.csv"),
         SMART_TEST_FEEDBACK("smart_ts_feedback.csv"),
         SMART_TEST_FITNESS("smart_ts_fitness.csv"),
-        SMART_TEST_SANITY("smart_ts_santity.csv");
+        SMART_TEST_SANITY("smart_ts_sanity.csv");
 
         private final String filePath;
 
