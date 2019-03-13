@@ -1,6 +1,6 @@
 #!/bin/bash
 
-datasets=("airfoil" "ccn" "concrete" "keijzer-7" "parkinsons" "ppb" "towerData" "vladislavleva-1" "vladislavleva-4" "yacht")
+datasets=("airfoil" "ccn" "concrete" "keijzer-7" "parkinsons" "towerData" "vladislavleva-1" "vladislavleva-4" "yacht")
 gsgp_path=$(pwd)"/dist"
 experiments_path=$(pwd)"/experiments/scripts/gsgp"
 results_path=$(pwd)"/results"

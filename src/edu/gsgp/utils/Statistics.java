@@ -266,7 +266,7 @@ public class Statistics {
                     continue;
 
                 if (best == null ||
-                        best.getTrainingFitness()[bestGroup] > bestByObjective.get(i).getTrainingFitness()[i])
+                    best.getTrainingFitness()[bestGroup] > bestByObjective.get(i).getTrainingFitness()[i])
                 {
                     bestGroup = i;
                     best = bestByObjective.get(i);

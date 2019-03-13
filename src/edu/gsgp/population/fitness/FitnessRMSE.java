@@ -117,7 +117,7 @@ public class FitnessRMSE extends Fitness {
         for (int i = 0; i < rmse.length; i++) {
             rmse[i] = sumSquareErrorsSize[i] == 0
                     ? Double.MAX_VALUE
-                    : Math.sqrt(sumSquareErrors[i] / sumSquareErrorsSize[i]);
+                    : sumSquareErrors[i] / sumSquareErrorsSize[i];
         }
 
         setRMSE(rmse, dataType);
