@@ -76,7 +76,7 @@ public class Experimenter {
             this.id = id;
         }
         
-        private synchronized void writeStatistics() throws Exception{
+        private void writeStatistics() throws Exception{
             DataWriter.writeResults(parameters.getOutputDir(), 
                     parameters.getFilePrefix(), 
                     gsgpInstance.getStatistics(), id);

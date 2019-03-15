@@ -218,19 +218,14 @@ public class Statistics {
             int instanceIndex = 0;
 
             for (Instance instance : expData.getDataset(type)) {
-                double estimated = type == Utils.DatasetType.TRAINING
-                        ? individual.getTrainingSemantics()[instanceIndex]
-                        : individual.getTestSemantics()[instanceIndex];
+                double estimated = individual.getSemantics(type)[instanceIndex];
 
                 function.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, type);
             }
 
             function.computeFitness(type);
 
-            if (type == Utils.DatasetType.TRAINING)
-                sanity[i] = Utils.format( function.getTrainingFitness()[0]);
-            else
-                sanity[i] = Utils.format(function.getTestFitness()[0]);
+            sanity[i] = Utils.format(function.getFitness(type)[0]);
         }
 
         return StringUtils.join(sanity, ',');
@@ -312,7 +307,6 @@ public class Statistics {
             if (testSize > trainingSize)
                 sampleSize = Math.min(trainingSize, sampleSize);
         }
-
 
         Map<Individual, FitnessRMSE> validationFitness = computeValidationFitness(
                 validationDataset,

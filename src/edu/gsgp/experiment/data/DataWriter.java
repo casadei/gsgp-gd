@@ -24,7 +24,7 @@ import java.io.IOException;
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
 public class DataWriter {
-    public static void writeResults(String outputPath,
+    public synchronized static void writeResults(String outputPath,
                                     String outputPrefix, 
                                     Statistics statistic,
                                     int experimentId) throws Exception {
