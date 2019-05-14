@@ -49,7 +49,7 @@ public class Statistics {
         private StatsType(String filePath) {
             this.filePath = filePath;
         }
-        
+
         public String getPath(){
             return filePath;
         }
@@ -125,7 +125,7 @@ public class Statistics {
         bestOfGenTrFitness[currentGeneration] = String.join("|", trFitnesses);
         bestOfGenTsFitness[currentGeneration] = String.join("|", tsFitnesses);
 
-        System.out.println("Best of Gen " + (currentGeneration) + ": RMSE-TR: " + bestOfGenTrFitness[currentGeneration]);
+        System.out.println("Best of Gen " + (currentGeneration) + ": MSE-TR: " + bestOfGenTrFitness[currentGeneration]);
 
         currentGeneration++;
         

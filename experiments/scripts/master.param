@@ -33,7 +33,7 @@ evol.num.generation = 250
 # Tournament size, when using tournament as selector
 pop.ind.selector.tourn.size = 10
 # Number of experiment repetitions (per fold) - default = 1
-experiment.num.repetition = 10
+experiment.num.repetition = 50
 # Class responsible for evolve a new population from a previous one
 pop.pipeline = edu.gsgp.population.pipeline.StandardPipe
 # Number of threads (for parallel execution)
@@ -55,8 +55,8 @@ breed.list = edu.gsgp.population.operator.GSMBreeder*0.5, edu.gsgp.population.op
 # Alpha used to compute the effective probability of applying the spreader"
 #breed.spread.alpha = 2.0
 # Number of objectives
-data.classifier.k = 2
-data.classifier = edu.gsgp.experiment.data.classifiers.KMeans
+data.classifier.k = 1
+data.classifier = edu.gsgp.experiment.data.classifiers.Void
 validation.sample.size = 0.2
 path.python = /Users/casadei/anaconda3/bin/python
 path.scripts = /Users/casadei/dev/casadei/gsgp-mo/scripts/
