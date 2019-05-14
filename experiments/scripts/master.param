@@ -29,7 +29,7 @@ tree.min.depth = 2
 # Population size
 pop.size = 1000
 # Number of generations
-evol.num.generation = 250
+evol.num.generation = 5
 # Tournament size, when using tournament as selector
 pop.ind.selector.tourn.size = 10
 # Number of experiment repetitions (per fold) - default = 1
