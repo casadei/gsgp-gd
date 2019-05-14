@@ -152,4 +152,8 @@ public class Individual {
         return fitnessFunction.getTrainingFitness();
     }
 
+    public double[] getValidationFitness() {
+        return fitnessFunction.getValidationFitness();
+    }
+
 }

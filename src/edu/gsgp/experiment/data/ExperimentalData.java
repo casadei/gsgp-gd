@@ -18,15 +18,18 @@ import edu.gsgp.utils.Utils.DatasetType;
 public class ExperimentalData {
     private Dataset training;
     private Dataset test;
+    private Dataset validation;
 
     public ExperimentalData(){
         training = new Dataset();
         test = new Dataset();
+        validation = new Dataset();
     }
 
-    public ExperimentalData(Dataset training, Dataset test) {
+    public ExperimentalData(Dataset training, Dataset test, Dataset validation) {
         this.training = training;
         this.test = test;
+        this.validation = validation;
     }    
     
     /**
@@ -40,6 +43,8 @@ public class ExperimentalData {
                 return test;
             case TRAINING:
                 return training;
+            case VALIDATION:
+                return validation;
             default:
                 return null;
         }
@@ -57,6 +62,6 @@ public class ExperimentalData {
     }
 
     public ExperimentalData softClone() {
-        return new ExperimentalData(training.softClone(), test.softClone());
+        return new ExperimentalData(training.softClone(), test.softClone(), validation.softClone());
     }
 }

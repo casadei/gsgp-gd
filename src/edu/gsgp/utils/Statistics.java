@@ -285,42 +285,12 @@ public class Statistics {
     private void computeSmartTestFitness(int numberOfObjectives, Individual[] bestIndividuals) {
         Map<Integer, Individual> bestByObjective = new HashMap<>();
 
-        int trainingSize = expData.getDataset(Utils.DatasetType.TRAINING).size();
-        int testSize = expData.getDataset(Utils.DatasetType.TEST).size();
-        int sampleSize;
-        Utils.DatasetType validationDataset;
-
-        /*
-            If the training size is greater or equal to test size, should use the training dataset to do the validation,
-            otherwise should use the test size using a sample not greater than training size
-
-         */
-
-        if (trainingSize >= testSize) {
-            validationDataset = Utils.DatasetType.TRAINING;
-            sampleSize = (int)(Math.floor(trainingSize) * properties.getValidationSampleSize());
-
-        } else {
-            validationDataset = Utils.DatasetType.TEST;
-            sampleSize = (int)(Math.floor(testSize) * properties.getValidationSampleSize());
-
-            if (testSize > trainingSize)
-                sampleSize = Math.min(trainingSize, sampleSize);
-        }
-
-        Map<Individual, FitnessRMSE> validationFitness = computeValidationFitness(
-                validationDataset,
-                sampleSize,
-                numberOfObjectives,
-                bestIndividuals
-        );
-
         // Get best individual by objective according to the validation fitness results
         for (int i = 0; i < numberOfObjectives; i++) {
             for (Individual individual : bestIndividuals) {
                 if (!bestByObjective.containsKey(i) ||
-                    validationFitness.get(bestByObjective.get(i)).getFitness(validationDataset)[i] >
-                    validationFitness.get(individual).getFitness(validationDataset)[i])
+                    bestByObjective.get(i).getValidationFitness()[i] >
+                    individual.getValidationFitness()[i])
                 {
                     bestByObjective.put(i, individual);
                 }
@@ -343,8 +313,8 @@ public class Statistics {
                     continue;
 
                 if (best == null ||
-                    validationFitness.get(best).getFitness(validationDataset)[bestGroup] >
-                    validationFitness.get(bestByObjective.get(i)).getFitness(validationDataset)[i])
+                    best.getValidationFitness()[bestGroup] >
+                    bestByObjective.get(i).getValidationFitness()[i])
                 {
                     bestGroup = i;
                     best = bestByObjective.get(i);

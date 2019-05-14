@@ -20,6 +20,7 @@ import java.math.BigInteger;
 public abstract class Fitness{
     protected double[] semanticsTr;
     protected double[] semanticsTs;
+    protected double[] semanticsVt;
     
     protected BigInteger numNodes;
 
@@ -45,8 +46,10 @@ public abstract class Fitness{
     public final double[] getSemantics(DatasetType dataType){
         if(dataType == DatasetType.TRAINING)
             return semanticsTr;
-        else
+        if(dataType == DatasetType.TEST)
             return semanticsTs;
+        else
+            return semanticsVt;
     }
     
     /**
@@ -57,8 +60,10 @@ public abstract class Fitness{
     public final void setSemantics(double[] semantics, DatasetType dataType) {
         if(dataType == DatasetType.TRAINING)
             semanticsTr = semantics;
-        else
+        else if (dataType == DatasetType.TEST)
             semanticsTs = semantics;
+        else
+            semanticsVt = semantics;
     }
     
     /**
@@ -69,8 +74,10 @@ public abstract class Fitness{
     public final void setSemantics(int size, DatasetType dataType) {
         if(dataType == DatasetType.TRAINING)
             semanticsTr = new double[size];
-        else
+        else if (dataType == DatasetType.TEST)
             semanticsTs = new double[size];
+        else
+            semanticsVt = new double[size];
     }
 
     /**
@@ -127,5 +134,6 @@ public abstract class Fitness{
     public abstract double[] getFitness(DatasetType datasetType);
     public abstract double[] getTrainingFitness();
     public abstract double[] getTestFitness();
+    public abstract double[] getValidationFitness();
     public abstract double[] getComparableValue();
 }

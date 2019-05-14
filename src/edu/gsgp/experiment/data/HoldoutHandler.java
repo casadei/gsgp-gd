@@ -152,7 +152,6 @@ public class HoldoutHandler implements DataProducer{
      * @param testPath Path for the (test) dataset used
      * @return The number of inputs of the dataset
      * @throws Exception Error while reading the dataset within a file.
-     * @throws SSRException Error in the file path/pattern.
      */
     private void getFromFile(String trainingPath, String testPath) throws Exception{
         int lastFileSeparator = trainingPath.lastIndexOf(File.separator);
@@ -162,14 +161,20 @@ public class HoldoutHandler implements DataProducer{
         
         String testFolder = trainingFolder;
         String[] testRepeatedName = trainingRepeatedName;
-        
+
+        String validationFolder = trainingFolder;
+        String[] validationRepeatedName = trainingRepeatedName;
+
         String trainingInfix = "train-";
         String testInfix = "test-";
+        String validationInfix = "validation-";
         
         if(trainingRepeatedName.length != 2)
             throw new Exception("The file pattern must have one # symbol as fold index. See the instructions to use Holdout.");
+
         ArrayList<File> trainFiles = new ArrayList<File>();
         ArrayList<File> testFiles = new ArrayList<File>();
+        ArrayList<File> validationFiles = new ArrayList<File>();
         int index = 0;
         
         if(testPath != null && !testPath.isEmpty()){
@@ -184,24 +189,37 @@ public class HoldoutHandler implements DataProducer{
         File newTrain = new File(trainingFolder + File.separator + trainingRepeatedName[0] + trainingInfix + index + trainingRepeatedName[1]);
         newTrain = newTrain.getCanonicalFile();
         File newTest = new File(testFolder + File.separator + testRepeatedName[0] + testInfix + index + testRepeatedName[1]);
-        newTest = newTest.getCanonicalFile();        
+        newTest = newTest.getCanonicalFile();
+        File newValidation = new File(validationFolder + File.separator + validationRepeatedName[0] + validationInfix + index + validationRepeatedName[1]);
+        newValidation = newValidation.getCanonicalFile();
+
         while(newTrain.isFile() && newTest.isFile()){
             trainFiles.add(newTrain);
             testFiles.add(newTest);
+            validationFiles.add(newValidation);
             index++;
             newTrain = new File(trainingFolder + File.separator + trainingRepeatedName[0] + trainingInfix + index + trainingRepeatedName[1]);
             newTrain = newTrain.getCanonicalFile();
             newTest = new File(testFolder + File.separator + testRepeatedName[0] + testInfix + index + testRepeatedName[1]);
             newTest = newTest.getCanonicalFile();
+            newValidation = new File(validationFolder + File.separator + validationRepeatedName[0] + validationInfix + index + validationRepeatedName[1]);
+            newValidation = newValidation.getCanonicalFile();
+
         }
         if(trainFiles.isEmpty() || testFiles.isEmpty()) 
             throw new Exception("No files found for this file pattern/path: \"" + newTrain.getAbsolutePath() + "\" and \"" + newTest.getAbsolutePath() +  "\"\nUsing HOLDOUT.\n");
         if(trainFiles.size() != testFiles.size())
             throw new Exception("The number of test and training files is different. Check if the names are correct.\n");
+        if(validationFiles.size() != testFiles.size())
+            throw new Exception("The nubmer of test, training and validation files are different. Check if the names are correct.\n");
         
         datasetFromFiles = new ExperimentalData[trainFiles.size()];
         for(int i = 0; i < datasetFromFiles.length; i++){
-            datasetFromFiles[i] = new ExperimentalData(DataReader.readInputDataFile(trainFiles.get(i)), DataReader.readInputDataFile(testFiles.get(i)));
+            datasetFromFiles[i] = new ExperimentalData(
+                    DataReader.readInputDataFile(trainFiles.get(i)),
+                    DataReader.readInputDataFile(testFiles.get(i)),
+                    DataReader.readInputDataFile(validationFiles.get(i))
+            );
 //            datasetFromFiles[i].training = DataReader.readInputDataFile(trainFiles.get(i));
 //            datasetFromFiles[i].test = DataReader.readInputDataFile(testFiles.get(i));
         }

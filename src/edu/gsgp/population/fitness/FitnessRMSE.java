@@ -20,10 +20,13 @@ import edu.gsgp.experiment.data.ExperimentalData;
 public class FitnessRMSE extends Fitness {
     private double[] rmseTr;
     private double[] rmseTs;
+    private double[] rmseVt;
     private double[] rmseTrSumSquareErrors;
     private double[] rmseTsSumSquareErrors;
+    private double[] rmseVtSumSquareErrors;
     private double[] rmseTrSumSquareErrorsSizes;
     private double[] rmseTsSumSquareErrorsSizes;
+    private double[] rmseVtSumSquareErrorsSizes;
     private int numberOfObjectives = 0;
     private boolean skipGroupChecking = false;
 
@@ -41,23 +44,29 @@ public class FitnessRMSE extends Fitness {
         this.skipGroupChecking = skipGroupChecking;
     }
 
-    public FitnessRMSE(double[] semanticsTr, double[] semanticsTs, double[] rmseTr, double[] rmseTs) {
+    public FitnessRMSE(double[] semanticsTr, double[] semanticsTs, double[] rmseTr, double[] rmseTs, double[] rmseVt) {
         super(0, semanticsTr, semanticsTs);
         this.rmseTr = rmseTr;
         this.rmseTs = rmseTs;
+        this.rmseVt = rmseVt;
     }
     
     public void setRMSE(double[] rmse, DatasetType dataType) {
         if(dataType == DatasetType.TRAINING)
             rmseTr = rmse;
-        else
+        else if (dataType == DatasetType.TEST)
             rmseTs = rmse;
+        else
+            rmseVt = rmse;
     }
 
     public double[] getRMSE(DatasetType dataType){
-        if(dataType == DatasetType.TRAINING)
+        if (dataType == DatasetType.TRAINING)
             return rmseTr;
-        return rmseTs;
+        if (dataType == DatasetType.TEST)
+            return rmseTs;
+
+        return rmseVt;
     }
     
     /** Control variables used during fitness calculation. **/
@@ -70,16 +79,20 @@ public class FitnessRMSE extends Fitness {
     public void resetFitness(DatasetType dataType, ExperimentalData datasets, int numberOfObjectives){
         rmseTrSumSquareErrors = new double[numberOfObjectives];
         rmseTsSumSquareErrors = new double[numberOfObjectives];
+        rmseVtSumSquareErrors = new double[numberOfObjectives];
         rmseTrSumSquareErrorsSizes = new double[numberOfObjectives];
         rmseTsSumSquareErrorsSizes = new double[numberOfObjectives];
+        rmseVtSumSquareErrorsSizes = new double[numberOfObjectives];
 
         this.numberOfObjectives = numberOfObjectives;
 
         for (int i = 0; i < numberOfObjectives; i++) {
             rmseTrSumSquareErrors[i] = 0;
             rmseTsSumSquareErrors[i] = 0;
+            rmseVtSumSquareErrors[i] = 0;
             rmseTrSumSquareErrorsSizes[i] = 0;
             rmseTsSumSquareErrorsSizes[i] = 0;
+            rmseVtSumSquareErrorsSizes[i] = 0;
         }
 
         setSemantics(datasets.getDataset(dataType).size(), dataType);
@@ -101,11 +114,21 @@ public class FitnessRMSE extends Fitness {
     }
 
     protected double[] getRmseSumSquareErrors(DatasetType dataType) {
-        return dataType == DatasetType.TRAINING ? rmseTrSumSquareErrors : rmseTsSumSquareErrors;
+        if (dataType == DatasetType.TRAINING)
+            return rmseTrSumSquareErrors;
+        if (dataType == DatasetType.TEST)
+            return rmseTsSumSquareErrors;
+        else
+            return rmseVtSumSquareErrors;
     }
 
     protected double[] getRmseTrSumSquareErrorsSizes(DatasetType dataType) {
-        return dataType == DatasetType.TRAINING ? rmseTrSumSquareErrorsSizes : rmseTsSumSquareErrorsSizes;
+        if (dataType == DatasetType.TRAINING)
+            return rmseTrSumSquareErrorsSizes;
+        if (dataType == DatasetType.TEST)
+            return rmseTsSumSquareErrorsSizes;
+        else
+            return rmseVtSumSquareErrorsSizes;
     }
 
     @Override
@@ -139,10 +162,16 @@ public class FitnessRMSE extends Fitness {
     }
 
     @Override
+    public double[] getValidationFitness() { return rmseVt; }
+
+    @Override
     public double[] getFitness(DatasetType datasetType) {
-        return datasetType == Utils.DatasetType.TRAINING
-                ? this.getTrainingFitness()
-                : this.getTestFitness();
+        if (datasetType == DatasetType.TRAINING)
+            return this.getTrainingFitness();
+        if (datasetType == DatasetType.TEST)
+            return this.getTestFitness();
+        else
+            return this.getValidationFitness();
     }
     
     @Override

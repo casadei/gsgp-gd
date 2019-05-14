@@ -24,7 +24,7 @@ import java.util.Locale;
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
 public class Utils {    
-    public enum DatasetType{ TRAINING, TEST };
+    public enum DatasetType{ TRAINING, TEST, VALIDATION };
     private static final DecimalFormat df = new DecimalFormat("0.00000", new DecimalFormatSymbols(Locale.ENGLISH));
     
     /**

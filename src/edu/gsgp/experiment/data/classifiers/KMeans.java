@@ -19,6 +19,7 @@ public class KMeans extends Classifier {
     public void classify(PropertiesManager properties, MersenneTwister mersenneTwister, ExperimentalData experimentalData, int k) {
         Dataset training = experimentalData.getDataset(Utils.DatasetType.TRAINING);
         Dataset test = experimentalData.getDataset(Utils.DatasetType.TEST);
+        Dataset validation = experimentalData.getDataset(Utils.DatasetType.VALIDATION);
 
         try {
             ProcessBuilder pb = new ProcessBuilder(
@@ -30,6 +31,8 @@ public class KMeans extends Classifier {
                     String.valueOf(training.size()),
                     "-ts",
                     String.valueOf(test.size()),
+                    "-vt",
+                    String.valueOf(validation.size()),
                     "-seed",
                     String.valueOf(properties.getSeed())
             );
@@ -45,7 +48,7 @@ public class KMeans extends Classifier {
 
             Scanner scanner = new Scanner(stdout);
 
-            write(training, test, writer);
+            write(training, test, validation, writer);
 
             boolean stop = false;
             while (!stop) {
@@ -58,7 +61,14 @@ public class KMeans extends Classifier {
                     stop = true;
                 }  else {
                     String[] parts = line.split(",");
-                    Dataset target = parts[0].equals("TRAINING") ? training : test;
+
+                    Dataset target = null;
+                    if (parts[0].equals("TRAINING"))
+                        target = training;
+                    else if (parts[0].equals("TEST"))
+                        target = test;
+                    else
+                        target = validation;
 
                     target.get(Integer.parseInt(parts[1])).addToGroup(Integer.parseInt(parts[2]));
                 }
@@ -68,12 +78,16 @@ public class KMeans extends Classifier {
         }
     }
 
-    private void write(Dataset training, Dataset test, BufferedWriter writer) throws IOException {
+    private void write(Dataset training, Dataset test, Dataset validation, BufferedWriter writer) throws IOException {
         for (Instance instance : training) {
             writer.write(StringUtils.join(instance.input, ',') + "\n");
         }
 
         for (Instance instance : test) {
+            writer.write(StringUtils.join(instance.input, ',') + "\n");
+        }
+
+        for (Instance instance : validation) {
             writer.write(StringUtils.join(instance.input, ',') + "\n");
         }
 

@@ -118,7 +118,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import SpectralClustering
 import numpy as np
 
-k, seed, training, testing = parse_input()
+k, seed, training, testing, validation = parse_input()
 
 kernel = KernelKMeans(n_clusters=k, max_iter=100, random_state=seed)
 kernel.fit(training)
@@ -130,5 +130,8 @@ for i, cluster in enumerate(predict(training)):
 
 for i, cluster in enumerate(predict(testing)):
   print("TEST,%d,%d" % (i, cluster))
+
+for i, cluster in enumerate(predict(validation)):
+  print("VALIDATION,%d,%d" % (i, cluster))
 
 print("<<EOF")
