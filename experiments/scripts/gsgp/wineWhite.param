@@ -1,4 +1,4 @@
 parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
 experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/wineWhite-#.dat
-experiment.file.prefix = wineWhite
+experiment.file.prefix = output-wineWhite
 

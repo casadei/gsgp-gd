@@ -1,4 +1,4 @@
-parent = ~/experiments/scripts/masterGSGP.param
-experiment.data = ~/experiments/dados/bioavailability-#.dat
-experiment.file.prefix = bioavailability-sgp
+parent = ~/dev/casadei/gsgp-mo/experiments/scripts/master.param
+experiment.data = ~/dev/casadei/gsgp-mo/experiments/data/bioavailability-#.dat
+experiment.file.prefix = output-bioavailability
 
