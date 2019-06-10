@@ -5,7 +5,6 @@
  */
 package edu.gsgp.experiment.config;
 
-import com.sun.xml.internal.rngom.digested.DDataPattern;
 import edu.gsgp.experiment.data.*;
 
 import java.io.BufferedWriter;
