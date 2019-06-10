@@ -20,13 +20,16 @@ public class OnePointCrossoverBreeder extends GPBreeder {
 
     @Override
     public Individual generateIndividual(MersenneTwister rndGenerator, ExperimentalData expData) {
+
         Individual p1 = properties.selectIndividual(originalPopulation, rndGenerator);
         Individual p2 = properties.selectIndividual(originalPopulation, rndGenerator);
         while(p1.equals(p2)) p2 = properties.selectIndividual(originalPopulation, rndGenerator);
 
         Node newTree = p1.getTree().clone(null);
-        Node source = Utils.getRandomNodeFromTree(newTree, rndGenerator);
-        Node target = Utils.getRandomNodeFromTree(p2.getTree(), rndGenerator).clone(null);
+        int number = rndGenerator.nextInt(Math.min(p1.getTree().getNumNodes(), p2.getTree().getNumNodes()));
+
+        Node source = Utils.getRandomNodeFromTree(newTree, number);
+        Node target = Utils.getRandomNodeFromTree(p2.getTree(), number).clone(null);
 
         return buildIndividual(p1, replaceNode(source, target, newTree), expData);
     }

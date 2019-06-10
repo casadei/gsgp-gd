@@ -144,7 +144,10 @@ public class Utils {
     }
 
     public static Node getRandomNodeFromTree(Node tree, MersenneTwister randomGenerator) {
-        int chosen = randomGenerator.nextInt(tree.getNumNodes());
+        return getRandomNodeFromTree(tree, randomGenerator.nextInt(tree.getNumNodes()));
+    }
+
+    public static Node getRandomNodeFromTree(Node tree, int number) {
         int counter = 0;
         Stack<Node> stack = new Stack<>();
         stack.add(tree);
@@ -152,7 +155,7 @@ public class Utils {
         while (!stack.empty()) {
             Node current = stack.pop();
 
-            if (counter++ == chosen)
+            if (counter++ == number)
                 return current;
 
             for (int i = 0; i < current.getArity(); i++) {
