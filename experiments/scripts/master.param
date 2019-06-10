@@ -48,7 +48,7 @@ pop.initializer.attempts = 10
 # List of breeders classes used during the evolution. The list items must be comma separated and the propability
 # must follow the breeder class separated by a *. E.g.:
 # edu.gsgp.population.builder.individual.BreederA*0.1, edu.gsgp.population.builder.individual.BreederB*0.9
-breed.list = edu.gsgp.population.operator.gp.UniformCrossoverBreeder*0.5, edu.gsgp.population.operator.gp.SubtreeMutationBreeder*0.25, edu.gsgp.population.operator.gp.SwitchNodeMutationBreeder*0.25
+breed.list = edu.gsgp.population.operator.gp.OnePointCrossoverBreeder*0.5, edu.gsgp.population.operator.gp.SubtreeMutationBreeder*0.25, edu.gsgp.population.operator.gp.NodeReplacementMutationBreeder*0.25
 #, edu.gsgp.population.builder.individual.GLBreeder*0.05
 # Probability of applying the spreader operator (in standalone mode)
 #breed.spread.prob = 0.5

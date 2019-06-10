@@ -9,14 +9,14 @@ import edu.gsgp.population.operator.Breeder;
 import edu.gsgp.utils.MersenneTwister;
 import edu.gsgp.utils.Utils;
 
-public class SwitchNodeMutationBreeder extends GPBreeder {
-    public SwitchNodeMutationBreeder(PropertiesManager propertiesManager, Double probability) {
+public class NodeReplacementMutationBreeder extends GPBreeder {
+    public NodeReplacementMutationBreeder(PropertiesManager propertiesManager, Double probability) {
         super(propertiesManager, probability);
     }
 
     @Override
     public Breeder softClone(PropertiesManager properties) {
-        return new UniformCrossoverBreeder(properties, probability);
+        return new NodeReplacementMutationBreeder(properties, probability);
     }
 
     @Override
@@ -25,14 +25,20 @@ public class SwitchNodeMutationBreeder extends GPBreeder {
 
         Node newTree = p1.getTree().clone(null);
         Node source = Utils.getRandomNodeFromTree(newTree, rndGenerator);
+
         Node target;
 
         if (source instanceof Function) {
-            target = properties.getRandomTerminal(rndGenerator);
-        } else {
             target = properties.getRandomFunction(rndGenerator);
+
+            for (int i = 0; i < target.getArity(); i++) {
+                source.getChild(i).setParent(target, i);
+                ((Function)target).addNode(source.getChild(i), i);
+            }
+        } else {
+            target = properties.getRandomTerminal(rndGenerator);
         }
 
-        return controlBloat(p1, replaceNode(source, target, newTree), expData);
+        return buildIndividual(p1, replaceNode(source, target, newTree), expData);
     }
 }

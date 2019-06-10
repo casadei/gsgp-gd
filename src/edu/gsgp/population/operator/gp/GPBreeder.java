@@ -18,7 +18,9 @@ public abstract class GPBreeder extends Breeder {
 
     protected Fitness evaluate(Fitness fitnessFunction,
                                Node tree,
-                               ExperimentalData expData){
+                               ExperimentalData expData) {
+        boolean bloated = tree.getDepth() > properties.getIndividualMaxDepth();
+
         for(Utils.DatasetType dataType : Utils.DatasetType.values()){
             // Compute the (training/test) semantics of generated random tree
             fitnessFunction.resetFitness(dataType, expData, properties.getNumberOfObjectives());
@@ -26,7 +28,7 @@ public abstract class GPBreeder extends Breeder {
 
             int instanceIndex = 0;
             for (Instance instance : dataset) {
-                double estimated = tree.eval(instance.input);
+                double estimated = bloated ? Double.MAX_VALUE : tree.eval(instance.input);
                 fitnessFunction.setSemanticsAtIndex(instance, estimated, instance.output, instanceIndex++, dataType);
             }
             fitnessFunction.computeFitness(dataType);
@@ -49,10 +51,7 @@ public abstract class GPBreeder extends Breeder {
         return tree;
     }
 
-    protected Individual controlBloat(Individual parent, Node tree, ExperimentalData data) {
-        if (tree.getDepth() > properties.getIndividualMaxDepth())
-            return parent;
-
+    protected Individual buildIndividual(Individual parent, Node tree, ExperimentalData data) {
         return new Individual(
                 tree,
                 tree.getNumNodes(),

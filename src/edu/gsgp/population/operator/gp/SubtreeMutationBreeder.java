@@ -15,7 +15,7 @@ public class SubtreeMutationBreeder extends GPBreeder {
 
     @Override
     public Breeder softClone(PropertiesManager properties) {
-        return new UniformCrossoverBreeder(properties, probability);
+        return new SubtreeMutationBreeder(properties, probability);
     }
 
     @Override
@@ -26,6 +26,6 @@ public class SubtreeMutationBreeder extends GPBreeder {
         Node source = Utils.getRandomNodeFromTree(newTree, rndGenerator);
         Node target = properties.getRandomTree(rndGenerator);
 
-        return controlBloat(p1, replaceNode(source, target, newTree), expData);
+        return buildIndividual(p1, replaceNode(source, target, newTree), expData);
     }
 }

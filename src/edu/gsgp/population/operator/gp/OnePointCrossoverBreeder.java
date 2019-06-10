@@ -8,14 +8,14 @@ import edu.gsgp.population.operator.Breeder;
 import edu.gsgp.utils.MersenneTwister;
 import edu.gsgp.utils.Utils;
 
-public class UniformCrossoverBreeder extends GPBreeder {
-    public UniformCrossoverBreeder(PropertiesManager propertiesManager, Double probability) {
+public class OnePointCrossoverBreeder extends GPBreeder {
+    public OnePointCrossoverBreeder(PropertiesManager propertiesManager, Double probability) {
         super(propertiesManager, probability);
     }
 
     @Override
     public Breeder softClone(PropertiesManager properties) {
-        return new UniformCrossoverBreeder(properties, probability);
+        return new OnePointCrossoverBreeder(properties, probability);
     }
 
     @Override
@@ -28,6 +28,6 @@ public class UniformCrossoverBreeder extends GPBreeder {
         Node source = Utils.getRandomNodeFromTree(newTree, rndGenerator);
         Node target = Utils.getRandomNodeFromTree(p2.getTree(), rndGenerator).clone(null);
 
-        return controlBloat(p1, replaceNode(source, target, newTree), expData);
+        return buildIndividual(p1, replaceNode(source, target, newTree), expData);
     }
 }
