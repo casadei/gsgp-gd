@@ -5,6 +5,7 @@
  */
 package edu.gsgp.experiment.config;
 
+import com.sun.xml.internal.rngom.digested.DDataPattern;
 import edu.gsgp.experiment.data.*;
 
 import java.io.BufferedWriter;
@@ -106,7 +107,7 @@ public class PropertiesManager {
     private Classifier classifier;
 
     private long seed;
-    private double validationSampleSize;
+    private int individualMaxDepth;
     private String pathToPython;
     private String pathToScripts;
 
@@ -158,7 +159,7 @@ public class PropertiesManager {
         numberOfObjectives = getIntegerProperty(ParameterList.DATA_CLASSIFIER_K, 0);
         classifier = getClassifierObject();
 
-        validationSampleSize = getDoubleProperty(ParameterList.VALIDATION_SAMPLE_SIZE, 0.0);
+        individualMaxDepth = getIntegerProperty(ParameterList.INDIVIDUAL_MAX_DEPTH, 0);
         pathToPython = getStringProperty(ParameterList.PATH_PYTHON, false);
         pathToScripts = getStringProperty(ParameterList.PATH_SCRIPTS, false);
     }
@@ -217,7 +218,7 @@ public class PropertiesManager {
         DATA_CLASSIFIER("data.classifier", "Class responsible for doing data classification of each instance of the data sets", true),
         DATA_CLASSIFIER_K("data.classifier.k", "Number of K available classes used in the data classification.", false),
 
-        VALIDATION_SAMPLE_SIZE("validation.sample.size", "Relative (%) size of the sample of test samples used in the smart fitness validation", false),
+        INDIVIDUAL_MAX_DEPTH("individual.max_depth", "Max of depth of an individual when using GP Breeders", false),
         PATH_PYTHON("path.python", "Path to python bin", false),
         PATH_SCRIPTS("path.scripts", "Path to python scripts", false);
 
@@ -892,7 +893,7 @@ public class PropertiesManager {
 
     public long getSeed() { return seed; }
 
-    public double getValidationSampleSize() { return validationSampleSize; }
+    public int getIndividualMaxDepth() { return individualMaxDepth; }
 
     public String getPathToPython() { return pathToPython; }
 

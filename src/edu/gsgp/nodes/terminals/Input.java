@@ -30,6 +30,9 @@ public class Input implements Terminal{
     }
 
     @Override
+    public int getDepth() { return 1; }
+
+    @Override
     public double eval(double[] inputs) {
         return inputs[index];
     }

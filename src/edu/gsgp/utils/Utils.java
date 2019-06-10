@@ -8,14 +8,13 @@ package edu.gsgp.utils;
 
 import edu.gsgp.experiment.data.Instance;
 import edu.gsgp.experiment.data.Dataset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
+
+import java.util.*;
+
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import edu.gsgp.nodes.Node;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Locale;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
@@ -142,6 +141,26 @@ public class Utils {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    public static Node getRandomNodeFromTree(Node tree, MersenneTwister randomGenerator) {
+        int chosen = randomGenerator.nextInt(tree.getNumNodes());
+        int counter = 0;
+        Stack<Node> stack = new Stack<>();
+        stack.add(tree);
+
+        while (!stack.empty()) {
+            Node current = stack.pop();
+
+            if (counter++ == chosen)
+                return current;
+
+            for (int i = 0; i < current.getArity(); i++) {
+                stack.push(current.getChild(i));
+            }
+        }
+
+        return null;
     }
     
     /**

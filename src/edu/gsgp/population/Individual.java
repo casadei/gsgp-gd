@@ -13,6 +13,7 @@ import edu.gsgp.population.fitness.Fitness;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * 
@@ -22,7 +23,7 @@ import java.util.List;
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
 public class Individual {
-    protected Node tree;    
+    protected Node tree;
     protected Fitness fitnessFunction;
     public double distance;
     public int dominanceRank;
@@ -109,6 +110,10 @@ public class Individual {
     
     public String getTestFitnessAsString() {
         double[] fitness = fitnessFunction.getTestFitness();
+
+        if (fitness == null)
+            return Utils.format(0);
+
         String[] formattedFitness = new String[fitness.length];
 
         for (int i = 0; i < fitness.length; i++) {
@@ -155,5 +160,4 @@ public class Individual {
     public double[] getValidationFitness() {
         return fitnessFunction.getValidationFitness();
     }
-
 }

@@ -44,6 +44,9 @@ public class ERC implements Terminal{
     }
 
     @Override
+    public int getDepth() { return 0; }
+
+    @Override
     public double eval(double[] inputs) {
         return value;
     }

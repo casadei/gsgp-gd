@@ -32,8 +32,21 @@ public abstract class Function implements Node{
     public abstract Node clone(Node parent);
     @Override
     public abstract int getArity();
+
+    @Override
+    public int getDepth() {
+        int depth = 0;
+
+        for (int i = 0; i < getArity(); i++) {
+           depth = Math.max(depth, this.arguments[i].getDepth());
+        }
+
+        return depth + 1;
+    }
+
     public abstract Function softClone();
-    
+
+
     /**
      * Return the argument at the given position
      * @param index Position

@@ -14,6 +14,8 @@ package edu.gsgp.nodes;
  */
 public interface Node {
     public int getArity();
+
+    public int getDepth();
     
     public double eval(double[] inputs);
     
