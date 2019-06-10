@@ -9,18 +9,37 @@ plt.rcParams['figure.figsize'] = (10, 5)
 plt.style.use('ggplot')
 
 CONSTANTS = {
-  'PATH': "/Users/casadei/dev/casadei/gsgp-mo/results",
+  'PATH': "/Users/casadei/bracis-2019/results",
   'ALPHA': 0.5,
   'COLORS': ['blue', 'green', 'orange', 'purple', 'brown', 'red'],
   'SHOW_TITLE': False,
   'AGGREGATION': np.mean,
   'DATASETS': [
-    'airfoil', 'ccn', 'concrete', 'keijzer-7', 'parkinsons', 'towerData',
-    'vladislavleva-1', 'vladislavleva-4', 'yacht'
+    'bioavailability', 'ccn', 'ccun', 'concrete', 'energyCooling', 'energyHeating',
+    'parkinsons', 'towerData', 'wineRed', 'winewhite'
   ],
+
   'STRATEGIES': ['random-without-replacement', 'kmeans', 'kernel-kmeans'],
   'CLASSES': range(2, 6)
 }
+'''
+
+CONSTANTS = {
+  'PATH': "/Users/casadei/dev/casadei/gsgp-mo/results/",
+  'ALPHA': 0.5,
+  'COLORS': ['blue', 'green', 'orange', 'purple', 'brown', 'red'],
+  'SHOW_TITLE': False,
+  'AGGREGATION': np.mean,
+  'DATASETS': [
+    'keijzer-7'
+  ],
+
+  'STRATEGIES': ['kmeans'],
+  'CLASSES': [5]
+}
+'''
+
+
 
 class DatasetType(Enum):
   TRAINING = 'TRAINING'
@@ -41,8 +60,12 @@ def _compute_approach(results, approach, k, dataset):
   results["%s-%d" % (approach, k)] = {
     'tr': aggregation(np.sqrt(pd.read_csv(directory + '/smart_tr_sanity.csv', header = None, names=cols, usecols = cols).iloc[:,1:]), axis = 1),
     'ts': aggregation(np.sqrt(pd.read_csv(directory + '/smart_ts_sanity.csv', header = None, names=cols, usecols = cols).iloc[:,1:]), axis = 1),
+    'minTr': np.min(np.sqrt(pd.read_csv(directory + '/smart_tr_sanity.csv', header = None, names=cols, usecols = cols).iloc[:,1:]), axis = 1),
+    'minTs': np.min(np.sqrt(pd.read_csv(directory + '/smart_ts_sanity.csv', header = None, names=cols, usecols = cols).iloc[:,1:]), axis = 1),
     'smartTr': np.sqrt(pd.read_csv(directory + '/smart_tr_fitness.csv', header = None).iloc[:,-1]),
-    'smartTs': np.sqrt(pd.read_csv(directory + '/smart_ts_fitness.csv', header = None).iloc[:,-1])
+    'smartTs': np.sqrt(pd.read_csv(directory + '/smart_ts_fitness.csv', header = None).iloc[:,-1]),
+    'sizesTr': pd.read_csv(directory + '/smart_tr_sanity.csv', header = None, names=cols, usecols = cols).iloc[:,1:].count(axis=1).as_matrix(),
+    'sizesTs': pd.read_csv(directory + '/smart_ts_sanity.csv', header = None, names=cols, usecols = cols).iloc[:,1:].count(axis=1).as_matrix()
   }
 
 def compute_results(approaches, classes, dataset):

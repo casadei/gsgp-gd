@@ -1,4 +1,5 @@
 from shared import *
+from sklearn.manifold import TSNE
 
 class RenderType(Enum):
   GROUPS = 1
@@ -34,7 +35,7 @@ def build_groups_data(data, k):
   matrix = []
 
   for i in range(0, k):
-    for row in data.as_matrix():
+    for row in data:
       if (row[1] & 2**i) == 0:
         continue
 
@@ -52,7 +53,7 @@ def build_feedback_data(data, datasetType, directory, execution):
   feedback = select_execution(pd.read_csv(directory + files[1], header = None), execution)
 
   matrix = []
-  for index, current in enumerate(data.as_matrix()):
+  for index, current in enumerate(data):
     buffer = np.array(current[2:-1])
     buffer = np.append(buffer, semantics.iloc[index])
     buffer = np.append(buffer, feedback.iloc[index])
@@ -81,7 +82,7 @@ def build_individuals_data(data, datasetType, directory, execution):
 
   matrix = []
   for i, current in enumerate(merge(semantics, data.shape[0])):
-    buffer = np.array(data.iloc[:,2:-1])
+    buffer = np.array(data[:,2:-1])
     matrix.append(np.column_stack((buffer, current, [i] * buffer.shape[0])))
 
   return np.asarray(matrix)
@@ -98,14 +99,14 @@ def build_errors_data(data, datasetType, directory, execution):
   errors = []
 
   for index, current in enumerate(semantics):
-    errors.append((current - data.iloc[:, -1]) ** 2)
+    errors.append((current - data[:, -1]) ** 2)
 
   errors = np.dstack(errors)[0]
 
   matrix = build_feedback_data(data, datasetType, directory, execution)[0]
 
   for index, row in enumerate(matrix):
-    error = (row[-2] - data.iloc[index, -1]) ** 2
+    error = (row[-2] - data[index, -1]) ** 2
     lowest_error = errors[index].min()
 
     if lowest_error < error:
@@ -113,12 +114,22 @@ def build_errors_data(data, datasetType, directory, execution):
 
   return [matrix]
 
+def reduce_dims(data):
+  x_reduced = TSNE(n_components=2, random_state=123456).fit_transform(data[:,2:-1])
+  output = np.concatenate((data[:,0:2], x_reduced, data[:,-1:]), axis=1)
+
+  return output
+
 def render(type, strategy, k, dataset, datasetType, colors, execution = 1):
   directory = directory_path(strategy, k, dataset)
   filename = "%s/groups-%02d.txt" % (directory, execution)
 
   data = pd.read_csv(filename, skiprows=[0], header = None)
   data = data[data[0] == datasetType.value]
+  data = data.as_matrix()
+
+  if (data.shape[1] > 5):
+    data = reduce_dims(data)
 
   dimensions = data.shape[1] - 2
 

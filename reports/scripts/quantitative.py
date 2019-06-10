@@ -22,22 +22,34 @@ def generate_table(results, datasets):
   df = pd.DataFrame(data=data, columns = columns)
   return df
 
-def compare(results, datasets, left, right, alpha):
+def compare(results, datasets, source, left, right, alpha):
   data = []
 
   format = lambda x: "%0.5f" % x
 
   for dataset in datasets:
-      x = results[dataset][left]['smartTs']
-      y = results[dataset][right]['smartTs']
+      x = results[dataset][left][source]
+      y = results[dataset][right][source]
       p = stats.wilcoxon(x, y, )
 
       result = 'EQUAL'
       if p.pvalue < alpha:
-        result = 'LOWER' if right < left else 'GREATER'
+        result = 'LOWER' if median(y) < median(x) else 'GREATER'
 
       data.append([dataset, format(median(x)), format(median(y)), format(p.pvalue), result])
 
   columns = ('Dataset', left, right, 'p-value', 'Result')
   df = pd.DataFrame(data=data, columns =columns)
   return df
+
+def export(results, datasets, strategy, source):
+  data = []
+
+  format = lambda x: "%0.5f" % x
+
+  for dataset in datasets:
+      x = results[dataset][strategy][source]
+      data.append(format(median(x)))
+
+  print(" & ".join(data))
+

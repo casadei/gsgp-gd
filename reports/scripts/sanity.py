@@ -32,11 +32,11 @@ def plot_accuracies(results, dataset, ax):
     ax.set_title(dataset)
 
 def plot_all_accuracies(results, datasets):
-    f, ax = plt.subplots(3, 3, figsize=(16,12), sharex=True, sharey=True)
+    f, ax = plt.subplots(5, 2, figsize=(16,12), sharex=True, sharey=True)
 
     for index, dataset in enumerate(datasets):
-        row = int(index / 3)
-        col = index % 3
+        row = int(index / 2)
+        col = index % 2
         plot_accuracies(results, dataset, ax[row, col])
 
     handles, labels = ax[0,0].get_legend_handles_labels()
