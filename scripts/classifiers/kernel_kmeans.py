@@ -120,7 +120,7 @@ import numpy as np
 
 k, seed, training, testing, validation = parse_input()
 
-kernel = KernelKMeans(n_clusters=k, max_iter=100, random_state=seed)
+kernel = KernelKMeans(n_clusters=k, max_iter=100, random_state=seed, kernel="rbf")
 kernel.fit(training)
 
 predict = lambda x: kernel.predict(x)
