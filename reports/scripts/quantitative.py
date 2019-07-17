@@ -6,7 +6,7 @@ def generate_table(results, datasets):
   data = []
 
   for dataset in datasets:
-      single = results[dataset]['single-objective-1']['smartTs']
+      single = results[dataset]['single']['smartTs']
       kmeans = results[dataset]['kmeans-2']['smartTs']
       kernel = results[dataset]['kernel-kmeans-2']['smartTs']
 

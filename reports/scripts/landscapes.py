@@ -36,7 +36,7 @@ def build_groups_data(data, k):
 
   for i in range(0, k):
     for row in data:
-      if (row[1] & 2**i) == 0:
+      if (int(row[1]) & 2**i) == 0:
         continue
 
       matrix.append(np.append(row[2:], i))

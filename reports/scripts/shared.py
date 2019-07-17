@@ -9,7 +9,8 @@ plt.rcParams['figure.figsize'] = (10, 5)
 plt.style.use('ggplot')
 
 CONSTANTS = {
-  'PATH': "/Users/casadei/bracis-2019/results",
+  #'PATH': "/Users/casadei/dev/casadei/gsgp-mo/results/",
+  'PATH': "/Users/casadei/results/gsgp/",
   'ALPHA': 0.5,
   'COLORS': ['blue', 'green', 'orange', 'purple', 'brown', 'red'],
   'SHOW_TITLE': False,
@@ -19,8 +20,8 @@ CONSTANTS = {
     'parkinsons', 'towerData', 'wineRed', 'winewhite'
   ],
 
-  'STRATEGIES': ['random-without-replacement', 'kmeans', 'kernel-kmeans'],
-  'CLASSES': range(2, 6)
+  'STRATEGIES': ['random', 'kmeans', 'kernel-kmeans'],
+  'CLASSES': [2, 3, 4, 5]
 }
 '''
 
@@ -73,7 +74,7 @@ def compute_results(approaches, classes, dataset):
 
     print("Computing results of " + dataset)
 
-    _compute_approach(results, 'single-objective', 1, dataset)
+    _compute_approach(results, 'single', 1, dataset)
 
     for approach in approaches:
         for k in classes:
