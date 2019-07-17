@@ -32,6 +32,7 @@ public class Statistics {
         TEST_SEMANTICS("tsOutputs.csv"),
         BEST_OF_GEN_TS_FIT("tsFitness.csv"), 
         BEST_OF_GEN_TR_FIT("trFitness.csv"),
+        BEST_OF_GEN_VAL_FIT("valFitness.csv"),
         ELAPSED_TIME("elapsedTime.csv"),
         LOADED_PARAMETERS("loadedParams.txt"),
         GROUPS("groups-%02d.txt"),
@@ -42,7 +43,14 @@ public class Statistics {
         SMART_TEST_SEMANTICS("smart_ts_outputs.csv"),
         SMART_TEST_FEEDBACK("smart_ts_feedback.csv"),
         SMART_TEST_FITNESS("smart_ts_fitness.csv"),
-        SMART_TEST_SANITY("smart_ts_sanity.csv");
+        SMART_TEST_SANITY("smart_ts_sanity.csv"),
+        TRAINING_FRONTS_SIZES("tr_fronts_sizes.csv"),
+        TRAINING_FRONTS("tr_fronts.csv"),
+        TRAINING_DIVERSITY("tr_diversity.csv"),
+        PARETO_FRONTIER_TR_SEMANTICS("pareto_tr_semantics.csv"),
+        PARETO_FRONTIER_TS_SEMANTICS("pareto_ts_semantics.csv"),
+        PARETO_FRONTIER_VAL_SEMANTICS("pareto_val_semantics.csv");
+
 
         private final String filePath;
 
@@ -63,6 +71,8 @@ public class Statistics {
     protected String[] bestOfGenSize;
     protected String[] bestOfGenTsFitness;
     protected String[] bestOfGenTrFitness;
+    protected String[] bestOfGenValFitness;
+    protected String[] frontsSizesByGen;
     
     protected float[] meanMDD;
     protected float[] sdMDD;
@@ -80,6 +90,13 @@ public class Statistics {
     protected String smartTsFeedback;
     protected String smartTsSanity;
 
+    protected String trFronts;
+    protected String trDiversity;
+
+    protected String[] paretoTrSemantics;
+    protected String[] paretoTsSemantics;
+    protected String[] paretoValSemantics;
+
     protected int currentGeneration;
     // ========================= ADDED FOR GECCO PAPER =========================
 //    private ArrayList<int[]> trGeTarget;
@@ -94,6 +111,8 @@ public class Statistics {
         bestOfGenSize = new String[numGenerations+1];
         bestOfGenTsFitness = new String[numGenerations+1];
         bestOfGenTrFitness = new String[numGenerations+1];
+        bestOfGenValFitness = new String[numGenerations+1];
+        frontsSizesByGen = new String[numGenerations+1];
         meanMDD = new float[numGenerations+1];
         sdMDD = new float[numGenerations+1];
         currentGeneration = 0;
@@ -114,16 +133,28 @@ public class Statistics {
         String[] sizes = new String[bestOfGen.length];
         String[] trFitnesses = new String[bestOfGen.length];
         String[] tsFitnesses = new String[bestOfGen.length];
+        String[] valFitnesses = new String[bestOfGen.length];
 
         for (int i = 0; i < bestOfGen.length; i++) {
             sizes[i] = bestOfGen[i].getNumNodesAsString();
             trFitnesses[i] = bestOfGen[i].getTrainingFitnessAsString();
             tsFitnesses[i] = bestOfGen[i].getTestFitnessAsString();
+            valFitnesses[i] = bestOfGen[i].getValidationFitnessAsString();
         }
 
         bestOfGenSize[currentGeneration] = String.join("|", sizes);
         bestOfGenTrFitness[currentGeneration] = String.join("|", trFitnesses);
         bestOfGenTsFitness[currentGeneration] = String.join("|", tsFitnesses);
+        bestOfGenValFitness[currentGeneration] = String.join("|", valFitnesses);
+
+
+        List<Integer> frontSizes = new ArrayList<>();
+
+        for (List<Individual> front : pop.getFronts()) {
+            frontSizes.add(front.size());
+        }
+
+        frontsSizesByGen[currentGeneration] = StringUtils.join(frontSizes, '#');
 
         System.out.println("Best of Gen " + (currentGeneration) + ": MSE-TR: " + bestOfGenTrFitness[currentGeneration]);
 
@@ -133,10 +164,12 @@ public class Statistics {
         elapsedTime += System.nanoTime() - methodTime;
     }
 
-    public void finishEvolution(int numberOfObjectives, Individual[] bestIndividuals) {
+    public void finishEvolution(int numberOfObjectives, Population pop) {
         elapsedTime = System.nanoTime() - elapsedTime;
         // Convert nanosecs to secs
         elapsedTime /= 1000000000;
+
+        Individual[] bestIndividuals = pop.getBestIndividuals();
 
         String[] trSemantics = new String[bestIndividuals.length];
         String[] tsSemantics = new String[bestIndividuals.length];
@@ -149,62 +182,38 @@ public class Statistics {
         bestTrainingSemantics = String.join("|", trSemantics);
         bestTestSemantics = String.join("|", tsSemantics);
 
-        computeSmartTrainingFitness(numberOfObjectives, bestIndividuals);
-        computeSmartTestFitness(numberOfObjectives, bestIndividuals);
-    }
+        List<String> outerTrFitness = new ArrayList<>();
+        List<String> outerTrDiversity = new ArrayList<>();
 
-    private List<Integer> getSampleIndexes(Utils.DatasetType type, int sampleSize ) {
-        int testSize = expData.getDataset(type).size();
+        for (List<Individual> front : pop.getFronts()) {
+            List<String> innerTrFitness = new ArrayList<>();
+            List<Double> innerTrDiversity = new ArrayList<>();
 
-        List<Integer> available = new ArrayList<>(testSize);
-
-        for (int i = 0; i < testSize; i++) {
-            available.add(i);
-        }
-
-        Collections.shuffle(available);
-
-        return available.subList(0, sampleSize);
-    }
-
-    private Map<Individual, FitnessRMSE> computeValidationFitness(
-            Utils.DatasetType datasetType,
-            int sampleSize,
-            int numberOfObjectives,
-            Individual[] bestIndividuals)
-    {
-        Map<Individual, FitnessRMSE> validationFitness = new HashMap<>();
-
-        for (Individual individual : bestIndividuals) {
-            FitnessRMSE fitness = new FitnessRMSE();
-            fitness.resetFitness(datasetType, expData, numberOfObjectives);
-
-            validationFitness.put(individual, fitness);
-        }
-
-        int instanceIndex = 0;
-
-        for (int index : getSampleIndexes(datasetType, sampleSize)) {
-            Instance instance = expData.getDataset(datasetType).get(index);
-
-            for (Individual individual : bestIndividuals) {
-                validationFitness.get(individual).setSemanticsAtIndex(
-                    instance,
-                    individual.getSemantics(datasetType)[index],
-                    instance.output,
-                    instanceIndex,
-                    datasetType
-                );
+            for (Individual ind : front) {
+                innerTrFitness.add(ind.getTrainingFitnessAsString());
+                innerTrDiversity.add(ind.distance);
             }
 
-            instanceIndex++;
+            outerTrFitness.add(StringUtils.join(innerTrFitness, '|'));
+            outerTrDiversity.add(StringUtils.join(innerTrDiversity, '|'));
         }
 
-        for (FitnessRMSE current : validationFitness.values()) {
-            current.computeFitness(datasetType);
-        }
+        trFronts = StringUtils.join(outerTrFitness, '#');
+        trDiversity = StringUtils.join(outerTrDiversity, '#');
 
-        return validationFitness;
+        computeSmartTrainingFitness(numberOfObjectives, bestIndividuals);
+        computeSmartTestFitness(numberOfObjectives, bestIndividuals);
+
+        List<Individual> paretoFrontier = pop.getFronts().get(0);
+        paretoTrSemantics = new String[paretoFrontier.size()];
+        paretoTsSemantics = new String[paretoFrontier.size()];
+        paretoValSemantics = new String[paretoFrontier.size()];
+
+        for (int i = 0; i < paretoFrontier.size(); i++) {
+            paretoTrSemantics[i] = StringUtils.join(paretoFrontier.get(i).getTrainingSemantics(), ';');
+            paretoTsSemantics[i] = StringUtils.join(paretoFrontier.get(i).getTestSemantics(), ';');
+            paretoValSemantics[i] = StringUtils.join(paretoFrontier.get(i).getValidationSemantics(), ';');
+        }
     }
 
     private String computeSanity(Utils.DatasetType type, Individual[] bestIndividuals) {
@@ -341,12 +350,14 @@ public class Statistics {
                 return concatenateArray(bestOfGenSize);
             case BEST_OF_GEN_TR_FIT:
                 return concatenateArray(bestOfGenTrFitness);
+            case BEST_OF_GEN_TS_FIT:
+                return concatenateArray(bestOfGenTsFitness);
+            case BEST_OF_GEN_VAL_FIT:
+                return concatenateArray(bestOfGenValFitness);
             case TRAINING_SEMANTICS:
                 return bestTrainingSemantics;
             case TEST_SEMANTICS:
                 return bestTestSemantics;
-            case BEST_OF_GEN_TS_FIT:
-                return concatenateArray(bestOfGenTsFitness);
             case ELAPSED_TIME:
                 return elapsedTime + "";
             case SMART_TRAINING_FITNESS:
@@ -365,6 +376,18 @@ public class Statistics {
                 return smartTsFeedback;
             case SMART_TEST_SANITY:
                 return smartTsSanity;
+            case TRAINING_FRONTS_SIZES:
+                return concatenateArray(frontsSizesByGen);
+            case TRAINING_FRONTS:
+                return trFronts;
+            case TRAINING_DIVERSITY:
+                return trDiversity;
+            case PARETO_FRONTIER_TR_SEMANTICS:
+                return concatenateArray(paretoTrSemantics);
+            case PARETO_FRONTIER_TS_SEMANTICS:
+                return concatenateArray(paretoTsSemantics);
+            case PARETO_FRONTIER_VAL_SEMANTICS:
+                return concatenateArray(paretoValSemantics);
             default:
                 return null;
         }

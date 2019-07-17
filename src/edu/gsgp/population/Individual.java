@@ -122,6 +122,22 @@ public class Individual {
 
         return String.join(";", formattedFitness);
     }
+
+    public String getValidationFitnessAsString() {
+        double[] fitness = fitnessFunction.getValidationFitness();
+
+        if (fitness == null)
+            return Utils.format(0);
+
+        String[] formattedFitness = new String[fitness.length];
+
+        for (int i = 0; i < fitness.length; i++) {
+            formattedFitness[i] = Utils.format(fitness[i]);
+        }
+
+        return String.join(";", formattedFitness);
+
+    }
     
     public double[] getFitness() {
         return fitnessFunction.getComparableValue();
@@ -148,6 +164,8 @@ public class Individual {
     public double[] getTestSemantics() {
         return fitnessFunction.getSemantics(Utils.DatasetType.TEST);
     }
+
+    public double[] getValidationSemantics() { return fitnessFunction.getSemantics(Utils.DatasetType.VALIDATION); }
 
     public double[] getTrainingFitness() {
         return fitnessFunction.getTrainingFitness();

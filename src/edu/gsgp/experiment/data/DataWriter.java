@@ -32,6 +32,7 @@ public class DataWriter {
                 StatsType.BEST_OF_GEN_SIZE,
                 StatsType.BEST_OF_GEN_TR_FIT,
                 StatsType.BEST_OF_GEN_TS_FIT,
+                StatsType.BEST_OF_GEN_VAL_FIT,
                 StatsType.TRAINING_SEMANTICS,
                 StatsType.TEST_SEMANTICS,
                 StatsType.ELAPSED_TIME,
@@ -42,7 +43,13 @@ public class DataWriter {
                 StatsType.SMART_TEST_FITNESS,
                 StatsType.SMART_TEST_SEMANTICS,
                 StatsType.SMART_TEST_FEEDBACK,
-                StatsType.SMART_TEST_SANITY
+                StatsType.SMART_TEST_SANITY,
+                StatsType.TRAINING_FRONTS_SIZES,
+                StatsType.TRAINING_FRONTS,
+                StatsType.TRAINING_DIVERSITY,
+                StatsType.PARETO_FRONTIER_TR_SEMANTICS,
+                StatsType.PARETO_FRONTIER_TS_SEMANTICS,
+                StatsType.PARETO_FRONTIER_VAL_SEMANTICS
         };
 
         for (StatsType type : writeableStats){

@@ -154,6 +154,10 @@ public class Population extends ArrayList<Individual> {
         }
     }
 
+    public List<List<Individual>> getFronts() {
+        return this.fronts;
+    }
+
     public Individual[] getBestIndividuals(){
         nondominatedSort();
 
