@@ -20,17 +20,17 @@ import java.util.*;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
- * http://homepages.dcc.ufmg.br/~luizvbo/ 
+ * http://homepages.dcc.ufmg.br/~luizvbo/
  * luiz.vbo@gmail.com
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
 public class Statistics {
 
     public enum StatsType{
-        BEST_OF_GEN_SIZE("individualSize.csv"), 
+        BEST_OF_GEN_SIZE("individualSize.csv"),
         TRAINING_SEMANTICS("trOutputs.csv"),
         TEST_SEMANTICS("tsOutputs.csv"),
-        BEST_OF_GEN_TS_FIT("tsFitness.csv"), 
+        BEST_OF_GEN_TS_FIT("tsFitness.csv"),
         BEST_OF_GEN_TR_FIT("trFitness.csv"),
         BEST_OF_GEN_VAL_FIT("valFitness.csv"),
         ELAPSED_TIME("elapsedTime.csv"),
@@ -64,19 +64,19 @@ public class Statistics {
     }
 
     protected PropertiesManager properties;
-    
+
     protected ExperimentalData expData;
-    
+
     protected float elapsedTime;
     protected String[] bestOfGenSize;
     protected String[] bestOfGenTsFitness;
     protected String[] bestOfGenTrFitness;
     protected String[] bestOfGenValFitness;
     protected String[] frontsSizesByGen;
-    
+
     protected float[] meanMDD;
     protected float[] sdMDD;
-    
+
     protected String bestTrainingSemantics;
     protected String bestTestSemantics;
 
@@ -93,16 +93,13 @@ public class Statistics {
     protected String trFronts;
     protected String trDiversity;
 
-    protected String[] paretoTrSemantics;
-    protected String[] paretoTsSemantics;
-    protected String[] paretoValSemantics;
-
+    protected List<Individual> paretoFrontier;
     protected int currentGeneration;
     // ========================= ADDED FOR GECCO PAPER =========================
 //    private ArrayList<int[]> trGeTarget;
 //    private ArrayList<int[]> tsGeTarget;
     // =========================================================================
-    
+
     public Statistics(PropertiesManager properties, ExperimentalData expData) {
         this.properties = properties;
 
@@ -123,7 +120,7 @@ public class Statistics {
      * Update the statistics with information obtained in the end of the generation
      * @param pop Current population
      */
-    public void addGenerationStatistic(Population pop){        
+    public void addGenerationStatistic(Population pop){
         // In order to not contabilize the time elapsed by this method we subtract
         // the time elapsed
         long methodTime = System.nanoTime();
@@ -159,7 +156,7 @@ public class Statistics {
         System.out.println("Best of Gen " + (currentGeneration) + ": MSE-TR: " + bestOfGenTrFitness[currentGeneration]);
 
         currentGeneration++;
-        
+
         // Ignore the time elapsed to store the statistics
         elapsedTime += System.nanoTime() - methodTime;
     }
@@ -204,16 +201,7 @@ public class Statistics {
         computeSmartTrainingFitness(numberOfObjectives, bestIndividuals);
         computeSmartTestFitness(numberOfObjectives, bestIndividuals);
 
-        List<Individual> paretoFrontier = pop.getFronts().get(0);
-        paretoTrSemantics = new String[paretoFrontier.size()];
-        paretoTsSemantics = new String[paretoFrontier.size()];
-        paretoValSemantics = new String[paretoFrontier.size()];
-
-        for (int i = 0; i < paretoFrontier.size(); i++) {
-            paretoTrSemantics[i] = StringUtils.join(paretoFrontier.get(i).getTrainingSemantics(), ';');
-            paretoTsSemantics[i] = StringUtils.join(paretoFrontier.get(i).getTestSemantics(), ';');
-            paretoValSemantics[i] = StringUtils.join(paretoFrontier.get(i).getValidationSemantics(), ';');
-        }
+        paretoFrontier = pop.getFronts().get(0);
     }
 
     private String computeSanity(Utils.DatasetType type, Individual[] bestIndividuals) {
@@ -343,8 +331,10 @@ public class Statistics {
         smartTsFeedback = StringUtils.join(feedback, ',');
         smartTsSanity = computeSanity(Utils.DatasetType.TEST, bestIndividuals);
     }
-    
+
     public String asWritableString(StatsType type) {
+        String[] buffer;
+
         switch(type){
             case BEST_OF_GEN_SIZE:
                 return concatenateArray(bestOfGenSize);
@@ -383,31 +373,49 @@ public class Statistics {
             case TRAINING_DIVERSITY:
                 return trDiversity;
             case PARETO_FRONTIER_TR_SEMANTICS:
-                return concatenateArray(paretoTrSemantics);
+                buffer = new String[paretoFrontier.size()];
+
+                for (int i = 0; i < paretoFrontier.size(); i++) {
+                    buffer[i] = StringUtils.join(paretoFrontier.get(i).getTrainingSemantics(), ';');
+                }
+
+                return concatenateArray(buffer);
             case PARETO_FRONTIER_TS_SEMANTICS:
-                return concatenateArray(paretoTsSemantics);
+                buffer = new String[paretoFrontier.size()];
+
+                for (int i = 0; i < paretoFrontier.size(); i++) {
+                    buffer[i] = StringUtils.join(paretoFrontier.get(i).getTestSemantics(), ';');
+                }
+
+                return concatenateArray(buffer);
             case PARETO_FRONTIER_VAL_SEMANTICS:
-                return concatenateArray(paretoValSemantics);
+                buffer = new String[paretoFrontier.size()];
+
+                for (int i = 0; i < paretoFrontier.size(); i++) {
+                    buffer[i] = StringUtils.join(paretoFrontier.get(i).getValidationSemantics(), ';');
+                }
+
+                return concatenateArray(buffer);
             default:
                 return null;
         }
     }
-    
+
     private String concatenateArray(String[] stringArray){
         StringBuilder str = new StringBuilder();
         for(int i = 0; i < stringArray.length-1; i++){
             str.append(stringArray[i] + ",");
         }
-        str.append(stringArray[stringArray.length-1]);        
+        str.append(stringArray[stringArray.length-1]);
         return str.toString();
     }
-    
+
     private String concatenateFloatArray(float[] floatArray) {
         StringBuilder str = new StringBuilder();
         for(int i = 0; i < floatArray.length-1; i++){
             str.append(Utils.format(floatArray[i]) + ",");
         }
-        str.append(Utils.format(floatArray[floatArray.length-1]));        
+        str.append(Utils.format(floatArray[floatArray.length-1]));
         return str.toString();
     }
 

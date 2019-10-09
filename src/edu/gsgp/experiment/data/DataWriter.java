@@ -19,13 +19,13 @@ import java.io.IOException;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
- * http://homepages.dcc.ufmg.br/~luizvbo/ 
+ * http://homepages.dcc.ufmg.br/~luizvbo/
  * luiz.vbo@gmail.com
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
 public class DataWriter {
     public synchronized static void writeResults(String outputPath,
-                                    String outputPrefix, 
+                                    String outputPrefix,
                                     Statistics statistic,
                                     int experimentId) throws Exception {
         StatsType writeableStats[] = {
@@ -53,20 +53,20 @@ public class DataWriter {
         };
 
         for (StatsType type : writeableStats){
-            writeOnFile(outputPath, outputPrefix, 
+            writeOnFile(outputPath, outputPrefix,
                     experimentId + "," + statistic.asWritableString(type) + "\n", type);
         }
     }
-    
+
     public static void writeLoadedParameters(PropertiesManager parameters) throws Exception{
         writeOnFile(parameters.getOutputDir(),
                    parameters.getFilePrefix(),
-                   parameters.getLoadedParametersString(), 
+                   parameters.getLoadedParametersString(),
                    StatsType.LOADED_PARAMETERS);
     }
-        
+
     public static void writeOutputs(String outputPath,
-                                    String outputPrefix, 
+                                    String outputPrefix,
                                     Statistics[] statsArray,
                                     ExperimentalData data) throws Exception{
         File outputDir = getOutputDir(outputPath);
@@ -99,6 +99,9 @@ public class DataWriter {
                 properties.getFilePrefix(),
                 sb.toString(),
                 String.format(StatsType.GROUPS.getPath(), execution));
+
+        sb.setLength(0);
+        sb.trimToSize();
     }
 
 
@@ -148,7 +151,7 @@ public class DataWriter {
         }
         else{
             outputDir = new File(System.getProperty("user.dir"));
-        }  
+        }
         return outputDir;
     }
 
