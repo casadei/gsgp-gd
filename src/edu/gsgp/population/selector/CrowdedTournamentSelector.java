@@ -14,8 +14,6 @@ public class CrowdedTournamentSelector implements IndividualSelector {
 
     @Override
     public Individual selectIndividual(Population population, MersenneTwister rnd) throws NullPointerException {
-        population.nondominatedSort();
-
         int popSize = population.size();
         ArrayList<Integer> indexes = new ArrayList<>();
         for(int i = 0; i < popSize; i++) indexes.add(i);
@@ -25,10 +23,8 @@ public class CrowdedTournamentSelector implements IndividualSelector {
         }
 
         Collections.sort(tournament, (i1, i2) -> {
-            if (i1.dominanceRank <= i2.dominanceRank)
-                return -1;
-            if (i1.dominanceRank > i2.dominanceRank)
-                return 1;
+            if (i1.dominanceRank != i2.dominanceRank)
+                return Integer.compare(i1.dominanceRank, i2.dominanceRank);
 
             return Double.compare(i2.distance, i1.distance);
         });

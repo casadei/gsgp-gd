@@ -7,7 +7,6 @@
 package edu.gsgp.utils;
 
 import edu.gsgp.experiment.config.PropertiesManager;
-import edu.gsgp.experiment.data.Dataset;
 import edu.gsgp.experiment.data.ExperimentalData;
 import edu.gsgp.experiment.data.Instance;
 import edu.gsgp.population.Individual;
@@ -36,21 +35,24 @@ public class Statistics {
         ELAPSED_TIME("elapsedTime.csv"),
         LOADED_PARAMETERS("loadedParams.txt"),
         GROUPS("groups-%02d.txt"),
-        SMART_TRAINING_SEMANTICS("smart_tr_outputs.csv"),
-        SMART_TRAINING_FEEDBACK("smart_tr_feedback.csv"),
-        SMART_TRAINING_FITNESS("smart_tr_fitness.csv"),
-        SMART_TRAINING_SANITY("smart_tr_sanity.csv"),
-        SMART_TEST_SEMANTICS("smart_ts_outputs.csv"),
-        SMART_TEST_FEEDBACK("smart_ts_feedback.csv"),
-        SMART_TEST_FITNESS("smart_ts_fitness.csv"),
-        SMART_TEST_SANITY("smart_ts_sanity.csv"),
-        TRAINING_FRONTS_SIZES("tr_fronts_sizes.csv"),
-        TRAINING_FRONTS("tr_fronts.csv"),
-        TRAINING_DIVERSITY("tr_diversity.csv"),
-        PARETO_FRONTIER_TR_SEMANTICS("pareto_tr_semantics.csv"),
-        PARETO_FRONTIER_TS_SEMANTICS("pareto_ts_semantics.csv"),
-        PARETO_FRONTIER_VAL_SEMANTICS("pareto_val_semantics.csv");
-
+        STACKING_TRAINING_SEMANTICS("stacking_tr_outputs.csv"),
+        STACKING_TRAINING_FEEDBACK("stacking_tr_feedback.csv"),
+        STACKING_TRAINING_FITNESS("stacking_tr_fitness.csv"),
+        STACKING_TRAINING_SANITY("stacking_tr_sanity.csv"),
+        STACKING_TEST_SEMANTICS("stacking_ts_outputs.csv"),
+        STACKING_TEST_FEEDBACK("stacking_ts_feedback.csv"),
+        STACKING_TEST_FITNESS("stacking_ts_fitness.csv"),
+        STACKING_TEST_SANITY("stacking_ts_sanity.csv"),
+        STACKING_VAL_FITNESS("stacking_val_fitness.csv"),
+        STACKING_VAL_SEMANTICS("stacking_val_semantics.csv"),
+        STACKING_VAL_FEEDBACK("stacking_val_feedback.csv"),
+        STACKING_VAL_SANITY("stacking_val_sanity.csv"),
+        FRONTS_TRAINING_SIZES("fronts_tr_sizes.csv"),
+        FRONTS_TRAINING("fronts_tr.csv"),
+        DIVERSITY_TRAINING("diversity_tr.csv"),
+        NON_DOMINATED_TR_SEMANTICS("non_dominated_tr_semantics.csv"),
+        NON_DOMINATED_TS_SEMANTICS("non_dominated_ts_semantics.csv"),
+        NON_DOMINATED_VAL_SEMANTICS("non_dominated_val_semantics.csv");
 
         private final String filePath;
 
@@ -80,20 +82,20 @@ public class Statistics {
     protected String bestTrainingSemantics;
     protected String bestTestSemantics;
 
-    protected String smartTrSemantics;
-    protected String smartTrFitness;
-    protected String smartTrFeedback;
-    protected String smartTrSanity;
+    protected String stackingTrSemantics;
+    protected String stackingTrFitness;
+    protected String stackingTrFeedback;
+    protected String stackingTrSanity;
 
-    protected String smartTsSemantics;
-    protected String smartTsFitness;
-    protected String smartTsFeedback;
-    protected String smartTsSanity;
+    protected String stackingTsSemantics;
+    protected String stackingTsFitness;
+    protected String stackingTsFeedback;
+    protected String stackingTsSanity;
 
-    protected String trFronts;
-    protected String trDiversity;
+    protected String frontsTr;
+    protected String diversityTr;
 
-    protected List<Individual> paretoFrontier;
+    protected List<Individual> nonDominated;
     protected int currentGeneration;
     // ========================= ADDED FOR GECCO PAPER =========================
 //    private ArrayList<int[]> trGeTarget;
@@ -153,7 +155,7 @@ public class Statistics {
 
         frontsSizesByGen[currentGeneration] = StringUtils.join(frontSizes, '#');
 
-        System.out.println("Best of Gen " + (currentGeneration) + ": MSE-TR: " + bestOfGenTrFitness[currentGeneration]);
+        System.out.println("Best of Gen " + (currentGeneration) + ": RMSE-TR: " + bestOfGenTrFitness[currentGeneration]);
 
         currentGeneration++;
 
@@ -195,20 +197,21 @@ public class Statistics {
             outerTrDiversity.add(StringUtils.join(innerTrDiversity, '|'));
         }
 
-        trFronts = StringUtils.join(outerTrFitness, '#');
-        trDiversity = StringUtils.join(outerTrDiversity, '#');
+        frontsTr = StringUtils.join(outerTrFitness, '#');
+        diversityTr = StringUtils.join(outerTrDiversity, '#');
 
-        computeSmartTrainingFitness(numberOfObjectives, bestIndividuals);
-        computeSmartTestFitness(numberOfObjectives, bestIndividuals);
+        nonDominated = new ArrayList<>();
+        nonDominated.addAll(pop.getFronts().get(0));
 
-        paretoFrontier = pop.getFronts().get(0);
+        computeStackingTrainingFitness(numberOfObjectives, nonDominated);
+        computeStackingTestFitness(numberOfObjectives, nonDominated);
     }
 
-    private String computeSanity(Utils.DatasetType type, Individual[] bestIndividuals) {
-        String[] sanity = new String[bestIndividuals.length];
+    private String computeSanity(Utils.DatasetType type, List<Individual> nonDominated) {
+        String[] sanity = new String[nonDominated.size()];
 
-        for (int i = 0; i < bestIndividuals.length; i++) {
-            Individual individual = bestIndividuals[i];
+        for (int i = 0; i < nonDominated.size(); i++) {
+            Individual individual = nonDominated.get(i);
 
             Fitness function = new FitnessRMSE(true);
             function.resetFitness(type, expData, 1);
@@ -228,12 +231,12 @@ public class Statistics {
         return StringUtils.join(sanity, ',');
     }
 
-    private void computeSmartTrainingFitness(int numberOfObjectives, Individual[] bestIndividuals) {
+    private void computeStackingTrainingFitness(int numberOfObjectives, List<Individual> nonDominated) {
         Map<Integer, Individual> bestByObjective = new HashMap<>();
 
         // Get best individual by objective according to the validation fitness results
         for (int i = 0; i < numberOfObjectives; i++) {
-            for (Individual individual : bestIndividuals) {
+            for (Individual individual : nonDominated) {
                 if (!bestByObjective.containsKey(i) ||
                      bestByObjective.get(i).getTrainingFitness()[i] > individual.getTrainingFitness()[i])
                 {
@@ -273,18 +276,18 @@ public class Statistics {
 
         function.computeFitness(Utils.DatasetType.TRAINING);
 
-        smartTrFitness = Utils.format(function.getTrainingFitness()[0]);
-        smartTrSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TRAINING), ',');
-        smartTrFeedback = StringUtils.join(feedback, ',');
-        smartTrSanity = computeSanity(Utils.DatasetType.TRAINING, bestIndividuals);
+        stackingTrFitness = Utils.format(function.getTrainingFitness()[0]);
+        stackingTrSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TRAINING), ',');
+        stackingTrFeedback = StringUtils.join(feedback, ',');
+        stackingTrSanity = computeSanity(Utils.DatasetType.TRAINING, nonDominated);
     }
 
-    private void computeSmartTestFitness(int numberOfObjectives, Individual[] bestIndividuals) {
+    private void computeStackingTestFitness(int numberOfObjectives, List<Individual> nonDominated) {
         Map<Integer, Individual> bestByObjective = new HashMap<>();
 
         // Get best individual by objective according to the validation fitness results
         for (int i = 0; i < numberOfObjectives; i++) {
-            for (Individual individual : bestIndividuals) {
+            for (Individual individual : nonDominated) {
                 if (!bestByObjective.containsKey(i) ||
                     bestByObjective.get(i).getValidationFitness()[i] >
                     individual.getValidationFitness()[i])
@@ -326,10 +329,10 @@ public class Statistics {
 
         function.computeFitness(Utils.DatasetType.TEST);
 
-        smartTsFitness = Utils.format(function.getTestFitness()[0]);
-        smartTsSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TEST), ',');
-        smartTsFeedback = StringUtils.join(feedback, ',');
-        smartTsSanity = computeSanity(Utils.DatasetType.TEST, bestIndividuals);
+        stackingTsFitness = Utils.format(function.getTestFitness()[0]);
+        stackingTsSemantics = StringUtils.join(function.getSemantics(Utils.DatasetType.TEST), ',');
+        stackingTsFeedback = StringUtils.join(feedback, ',');
+        stackingTsSanity = computeSanity(Utils.DatasetType.TEST, nonDominated);
     }
 
     public String asWritableString(StatsType type) {
@@ -350,49 +353,49 @@ public class Statistics {
                 return bestTestSemantics;
             case ELAPSED_TIME:
                 return elapsedTime + "";
-            case SMART_TRAINING_FITNESS:
-                return smartTrFitness;
-            case SMART_TRAINING_SEMANTICS:
-                return smartTrSemantics;
-            case SMART_TRAINING_FEEDBACK:
-                return smartTrFeedback;
-            case SMART_TRAINING_SANITY:
-                return smartTrSanity;
-            case SMART_TEST_FITNESS:
-                return smartTsFitness;
-            case SMART_TEST_SEMANTICS:
-                return smartTsSemantics;
-            case SMART_TEST_FEEDBACK:
-                return smartTsFeedback;
-            case SMART_TEST_SANITY:
-                return smartTsSanity;
-            case TRAINING_FRONTS_SIZES:
+            case STACKING_TRAINING_FITNESS:
+                return stackingTrFitness;
+            case STACKING_TRAINING_SEMANTICS:
+                return stackingTrSemantics;
+            case STACKING_TRAINING_FEEDBACK:
+                return stackingTrFeedback;
+            case STACKING_TRAINING_SANITY:
+                return stackingTrSanity;
+            case STACKING_TEST_FITNESS:
+                return stackingTsFitness;
+            case STACKING_TEST_SEMANTICS:
+                return stackingTsSemantics;
+            case STACKING_TEST_FEEDBACK:
+                return stackingTsFeedback;
+            case STACKING_TEST_SANITY:
+                return stackingTsSanity;
+            case FRONTS_TRAINING_SIZES:
                 return concatenateArray(frontsSizesByGen);
-            case TRAINING_FRONTS:
-                return trFronts;
-            case TRAINING_DIVERSITY:
-                return trDiversity;
-            case PARETO_FRONTIER_TR_SEMANTICS:
-                buffer = new String[paretoFrontier.size()];
+            case FRONTS_TRAINING:
+                return frontsTr;
+            case DIVERSITY_TRAINING:
+                return diversityTr;
+            case NON_DOMINATED_TR_SEMANTICS:
+                buffer = new String[nonDominated.size()];
 
-                for (int i = 0; i < paretoFrontier.size(); i++) {
-                    buffer[i] = StringUtils.join(paretoFrontier.get(i).getTrainingSemantics(), ';');
+                for (int i = 0; i < nonDominated.size(); i++) {
+                    buffer[i] = StringUtils.join(nonDominated.get(i).getTrainingSemantics(), ';');
                 }
 
                 return concatenateArray(buffer);
-            case PARETO_FRONTIER_TS_SEMANTICS:
-                buffer = new String[paretoFrontier.size()];
+            case NON_DOMINATED_TS_SEMANTICS:
+                buffer = new String[nonDominated.size()];
 
-                for (int i = 0; i < paretoFrontier.size(); i++) {
-                    buffer[i] = StringUtils.join(paretoFrontier.get(i).getTestSemantics(), ';');
+                for (int i = 0; i < nonDominated.size(); i++) {
+                    buffer[i] = StringUtils.join(nonDominated.get(i).getTestSemantics(), ';');
                 }
 
                 return concatenateArray(buffer);
-            case PARETO_FRONTIER_VAL_SEMANTICS:
-                buffer = new String[paretoFrontier.size()];
+            case NON_DOMINATED_VAL_SEMANTICS:
+                buffer = new String[nonDominated.size()];
 
-                for (int i = 0; i < paretoFrontier.size(); i++) {
-                    buffer[i] = StringUtils.join(paretoFrontier.get(i).getValidationSemantics(), ';');
+                for (int i = 0; i < nonDominated.size(); i++) {
+                    buffer[i] = StringUtils.join(nonDominated.get(i).getValidationSemantics(), ';');
                 }
 
                 return concatenateArray(buffer);

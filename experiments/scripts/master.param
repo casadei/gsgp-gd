@@ -12,6 +12,7 @@ tree.build.builder = RHH
 tree.build.builder.random.tree = GROW
 # Type of selector used to select individuals for next generations
 pop.ind.selector = CROWDING_DISTANCE
+# pop.ind.selector = TOURNAMENT
 # Type of experiment (cross-validation or holdout):
 # - If crossvalidation, uses splited data from a list of files. Use paths to the
 # files in the form /pathToFile/repeatedName#repeatedName, where # indicates
@@ -32,8 +33,8 @@ pop.size = 1000
 evol.num.generation = 250
 # Tournament size, when using tournament as selector
 pop.ind.selector.tourn.size = 10
-# Number of experiment repetitions (per fold) - default = 1
-experiment.num.repetition = 50
+# Number of experiment repetition (per fold) - default = 1
+experiment.num.repetition = 30
 # Class responsible for evolve a new population from a previous one
 pop.pipeline = edu.gsgp.population.pipeline.StandardPipe
 # Number of threads (for parallel execution)
@@ -56,7 +57,7 @@ breed.list = edu.gsgp.population.operator.GSMBreeder*0.5, edu.gsgp.population.op
 #breed.spread.alpha = 2.0
 
 # Bloat Control
-individual.max_depth = 8
+individual.max_depth = 10
 
 # Number of objectives
 data.classifier.k = 1

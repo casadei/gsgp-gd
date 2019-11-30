@@ -36,20 +36,26 @@ public class DataWriter {
                 StatsType.TRAINING_SEMANTICS,
                 StatsType.TEST_SEMANTICS,
                 StatsType.ELAPSED_TIME,
-                StatsType.SMART_TRAINING_FITNESS,
-                StatsType.SMART_TRAINING_SEMANTICS,
-                StatsType.SMART_TRAINING_FEEDBACK,
-                StatsType.SMART_TRAINING_SANITY,
-                StatsType.SMART_TEST_FITNESS,
-                StatsType.SMART_TEST_SEMANTICS,
-                StatsType.SMART_TEST_FEEDBACK,
-                StatsType.SMART_TEST_SANITY,
-                StatsType.TRAINING_FRONTS_SIZES,
-                StatsType.TRAINING_FRONTS,
-                StatsType.TRAINING_DIVERSITY,
-                StatsType.PARETO_FRONTIER_TR_SEMANTICS,
-                StatsType.PARETO_FRONTIER_TS_SEMANTICS,
-                StatsType.PARETO_FRONTIER_VAL_SEMANTICS
+                StatsType.STACKING_TRAINING_FITNESS,
+                StatsType.STACKING_TRAINING_SEMANTICS,
+                StatsType.STACKING_TRAINING_FEEDBACK,
+                StatsType.STACKING_TRAINING_SANITY,
+                StatsType.STACKING_TEST_FITNESS,
+                StatsType.STACKING_TEST_SEMANTICS,
+                StatsType.STACKING_TEST_FEEDBACK,
+                StatsType.STACKING_TEST_SANITY,
+                /*
+                StatsType.STACKING_VAL_FITNESS,
+                StatsType.STACKING_VAL_SEMANTICS,
+                StatsType.STACKING_VAL_FEEDBACK,
+                StatsType.STACKING_VAL_SANITY,
+                */
+                StatsType.FRONTS_TRAINING_SIZES,
+                StatsType.FRONTS_TRAINING,
+                StatsType.DIVERSITY_TRAINING,
+                StatsType.NON_DOMINATED_TR_SEMANTICS,
+                StatsType.NON_DOMINATED_TS_SEMANTICS,
+                StatsType.NON_DOMINATED_VAL_SEMANTICS
         };
 
         for (StatsType type : writeableStats){

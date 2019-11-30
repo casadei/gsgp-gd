@@ -13,7 +13,7 @@ import java.util.*;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
- * http://homepages.dcc.ufmg.br/~luizvbo/ 
+ * http://homepages.dcc.ufmg.br/~luizvbo/
  * luiz.vbo@gmail.com
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
@@ -21,19 +21,19 @@ public class Population extends ArrayList<Individual> {
     private PropertiesManager properties;
     private List<List<Individual>> fronts = new ArrayList<>();
     private boolean sorted = false;
-    
+
     public Population(PropertiesManager properties) {
         super();
 
         this.properties = properties;
     }
-    
+
     public Population(PropertiesManager properties, ArrayList<Individual> individuals) {
         super(individuals);
 
         this.properties = properties;
     }
-    
+
     public void addAll(Individual[] newIndividuals){
         addAll(Arrays.asList(newIndividuals));
     }
@@ -116,6 +116,8 @@ public class Population extends ArrayList<Individual> {
 
         for (List<Individual> currFront : fronts) {
             computeDistances(currFront);
+
+            Collections.sort(currFront, (i1, i2) -> Double.compare(i2.distance, i1.distance));
         }
 
         sorted = true;
@@ -160,15 +162,6 @@ public class Population extends ArrayList<Individual> {
 
     public Individual[] getBestIndividuals(){
         nondominatedSort();
-
-        Collections.sort(this, (i1, i2) -> {
-            if (i1.dominanceRank < i2.dominanceRank)
-                return -1;
-            if (i1.dominanceRank > i2.dominanceRank)
-                return 1;
-
-            return Double.compare(i2.distance, i1.distance);
-        });
 
         Map<Integer, Individual> minimum = new HashMap<>();
 

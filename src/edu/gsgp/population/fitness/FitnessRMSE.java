@@ -13,7 +13,7 @@ import edu.gsgp.experiment.data.ExperimentalData;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
- * http://homepages.dcc.ufmg.br/~luizvbo/ 
+ * http://homepages.dcc.ufmg.br/~luizvbo/
  * luiz.vbo@gmail.com
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
@@ -50,7 +50,7 @@ public class FitnessRMSE extends Fitness {
         this.rmseTs = rmseTs;
         this.rmseVt = rmseVt;
     }
-    
+
     public void setRMSE(double[] rmse, DatasetType dataType) {
         if(dataType == DatasetType.TRAINING)
             rmseTr = rmse;
@@ -68,13 +68,13 @@ public class FitnessRMSE extends Fitness {
 
         return rmseVt;
     }
-    
+
     /** Control variables used during fitness calculation. **/
     // Variable to store the sum of squared errors (to compute the RMSE).
     private double ctrSumSquarError;
     // Variable to indicate What fitness we are computing.
 //    private DataType ctrFitnessType;
-    
+
     @Override
     public void resetFitness(DatasetType dataType, ExperimentalData datasets, int numberOfObjectives){
         rmseTrSumSquareErrors = new double[numberOfObjectives];
@@ -140,7 +140,7 @@ public class FitnessRMSE extends Fitness {
         for (int i = 0; i < rmse.length; i++) {
             rmse[i] = sumSquareErrorsSize[i] == 0
                     ? Double.MAX_VALUE
-                    : sumSquareErrors[i] / sumSquareErrorsSize[i];
+                    : Math.sqrt(sumSquareErrors[i] / sumSquareErrorsSize[i]);
         }
 
         setRMSE(rmse, dataType);
@@ -173,7 +173,7 @@ public class FitnessRMSE extends Fitness {
         else
             return this.getValidationFitness();
     }
-    
+
     @Override
     public double[] getComparableValue() {
         return getRMSE(DatasetType.TRAINING);

@@ -11,12 +11,12 @@ import edu.gsgp.nodes.Node;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
- * http://homepages.dcc.ufmg.br/~luizvbo/ 
+ * http://homepages.dcc.ufmg.br/~luizvbo/
  * luiz.vbo@gmail.com
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
- * 
- * Ephemeral Random Constant (Koza J. R. Genetic Programming: On the Programming 
- * of Computers by Means of Natural Selection. 1992). Every time this terminal 
+ *
+ * Ephemeral Random Constant (Koza J. R. Genetic Programming: On the Programming
+ * of Computers by Means of Natural Selection. 1992). Every time this terminal
  * is chosen in the construction of an initial tree, a different random value is
  * generated which is then used for that particular terminal.
  */
@@ -30,27 +30,27 @@ public class ERC implements Terminal{
      * ERC default constructor
      */
     public ERC(){}
-    
-    
+
+
     // Koza claimed to be generating from [-1.0, 1.0] but he wasn't,
     // given the published simple-lisp code.  It was [-1.0, 1.0).  This is
     // pretty minor, but we're going to go with the code rather than the
     // published specs in the books.  If you want to go with [-1.0, 1.0],
     // just change nextDouble() to nextDouble(true, true)
-    
+
     @Override
     public int getArity() {
         return 0;
     }
 
     @Override
-    public int getDepth() { return 0; }
+    public int getDepth() { return 1; }
 
     @Override
     public double eval(double[] inputs) {
         return value;
     }
-    
+
     @Override
     public Terminal softClone(MersenneTwister rnd) {
         ERC newERC = new ERC();
@@ -58,12 +58,12 @@ public class ERC implements Terminal{
         newERC.value = newERC.rnd.nextDouble() * 2 - 1.0;
         return newERC;
     }
-    
+
     @Override
     public String toString() {
         return value + "";
     }
-    
+
     @Override
     public Node getChild(int index) {
         return null;

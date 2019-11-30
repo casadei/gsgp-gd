@@ -17,7 +17,7 @@ import edu.gsgp.population.pipeline.Pipeline;
 
 /**
  * @author Luiz Otavio Vilas Boas Oliveira
- * http://homepages.dcc.ufmg.br/~luizvbo/ 
+ * http://homepages.dcc.ufmg.br/~luizvbo/
  * luiz.vbo@gmail.com
  * Copyright (C) 20014, Federal University of Minas Gerais, Belo Horizonte, Brazil
  */
@@ -33,35 +33,54 @@ public class GSGP {
         statistics = new Statistics(properties, expData);
         rndGenerator = randomGenerator;
     }
-    
+
     public void evolve() throws Exception {
-        boolean canStop = false;     
-        
+        boolean canStop = false;
+
         Populator populator = properties.getPopulationInitializer();
         Pipeline pipe = properties.getPipeline();
-        
+
         statistics.startClock();
-        
+
         Population population = populator.populate(rndGenerator, expData, properties.getPopulationSize());
         pipe.setup(properties, statistics, expData, rndGenerator);
-        
-        statistics.addGenerationStatistic(population);
-        
-        for(int i = 0; i < properties.getNumGenerations() && !canStop; i++){
-            // Evolve a new Population
-            Population newPopulation = pipe.evolvePopulation(population, expData, properties.getPopulationSize()-1);
-            // The first position is reserved for the best of the generation (elitism)
 
-            for (Individual individual : population.getBestIndividuals()) {
-                newPopulation.add(individual);
+        statistics.addGenerationStatistic(population);
+
+        for(int i = 0; i < properties.getNumGenerations() && !canStop; i++) {
+            // Evolve a new Population
+            Population children = pipe.evolvePopulation(population, expData, properties.getPopulationSize());
+            population.resetFronts();
+
+            Population union = new Population(properties);
+            union.addAll(population); //Add Parents
+            union.addAll(children); //Add Children
+            union.nondominatedSort();
+
+            int currentFront = 0, currentPosition = 0;
+
+            Population newPopulation = new Population(properties);
+
+            while (newPopulation.size() < properties.getPopulationSize()) {
+                if (currentPosition >= union.getFronts().get(currentFront).size()) {
+                    currentFront++;
+                    currentPosition = 0;
+                }
+
+                Individual current = union.getFronts().get(currentFront).get(currentPosition++);
+                newPopulation.add(current);
             }
 
-            population.resetFronts();
+            union.resetFronts();
+
             population = newPopulation;
-            
+
             statistics.addGenerationStatistic(population);
+
         }
+
         statistics.finishEvolution(properties.getNumberOfObjectives(), population);
+        population.resetFronts();
     }
 
     public Statistics getStatistics() {
