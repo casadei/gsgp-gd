@@ -8,6 +8,7 @@ package edu.gsgp.population;
 
 import edu.gsgp.experiment.config.PropertiesManager;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 
@@ -38,14 +39,17 @@ public class Population extends ArrayList<Individual> {
         addAll(Arrays.asList(newIndividuals));
     }
 
-    public boolean dominates(Individual a, Individual b) {
+    public boolean dominates(Individual a, Individual b, int indexOfA, int indexOfB) {
+        int equalities = 0;
         for (int i = 0; i < a.getFitness().length; i++) {
-            if (a.getFitness()[i] > b.getFitness()[i]) {
-                return false;
+            if (a.getFitness()[i] < b.getFitness()[i]) {
+                return true;
+            } else if (a.getFitness()[i] == b.getFitness()[i]) {
+                equalities++;
             }
         }
 
-        return true;
+        return equalities == a.getFitness().length && indexOfA < indexOfB;
     }
 
     public void resetFronts() {
@@ -70,16 +74,19 @@ public class Population extends ArrayList<Individual> {
 
         List<Individual> front = new ArrayList<>();
 
-        for (Individual i1 : this) {
+        for (int i = 0; i < this.size(); i++) {
+            Individual i1 = this.get(i);
             i1.resetDominance();
 
-            for (Individual i2 : this) {
+
+            for (int j = 0; j < this.size(); j++) {
+                Individual i2 = this.get(j);
                 if (i1 == i2)
                     continue;
 
-                if (dominates(i1, i2))
+                if (dominates(i1, i2, i, j))
                     i1.dominanceSet.add(i2);
-                else if (dominates(i2, i1))
+                else if (dominates(i2, i1, j, i))
                     i1.dominanceCount++;
             }
 
@@ -113,6 +120,7 @@ public class Population extends ArrayList<Individual> {
                 fronts.add(front);
 
         } while (current < fronts.size());
+
 
         for (List<Individual> currFront : fronts) {
             computeDistances(currFront);

@@ -155,7 +155,7 @@ public class Statistics {
 
         frontsSizesByGen[currentGeneration] = StringUtils.join(frontSizes, '#');
 
-        System.out.println("Best of Gen " + (currentGeneration) + ": RMSE-TR: " + bestOfGenTrFitness[currentGeneration]);
+        System.out.println("|P Front|: " + pop.getFronts().get(0).size() + " / Best of Gen " + (currentGeneration) + ": RMSE-TR: " + bestOfGenTrFitness[currentGeneration]);
 
         currentGeneration++;
 
